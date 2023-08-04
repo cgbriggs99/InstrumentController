@@ -160,15 +160,11 @@ F 3 "~" H 2600 4050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2750 4100 3300 4100
-Wire Wire Line
 	4100 4100 4100 4050
 Wire Wire Line
 	4100 4050 4600 4050
 Wire Wire Line
 	4600 4200 4600 4150
-Wire Wire Line
-	2750 4200 3200 4200
 $Comp
 L power:Earth #PWR0118
 U 1 1 64D0C34F
@@ -213,20 +209,6 @@ F 3 "http://www.littelfuse.com/~/media/files/littelfuse/technical%20resources/do
 	1    3300 4600
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3200 4400 3200 4200
-Connection ~ 3200 4200
-Wire Wire Line
-	3200 4200 4600 4200
-Wire Wire Line
-	3300 4400 3300 4100
-Connection ~ 3300 4100
-Wire Wire Line
-	3300 4100 4100 4100
-Wire Wire Line
-	3400 4400 3400 3900
-Wire Wire Line
-	2750 3900 3400 3900
 $Comp
 L power:Earth #PWR0121
 U 1 1 64D0F634
@@ -260,9 +242,6 @@ F 3 "~" H 3950 3800 50  0001 C CNN
 	1    3950 3800
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3800 3900 3400 3900
-Connection ~ 3400 3900
 $Comp
 L power:Earth #PWR0122
 U 1 1 64D17D3C
@@ -366,4 +345,25 @@ Wire Wire Line
 	6000 3100 8550 3100
 NoConn ~ 4600 3350
 NoConn ~ 4600 3450
+Wire Wire Line
+	2750 3900 3200 3900
+Wire Wire Line
+	2750 4100 3400 4100
+Wire Wire Line
+	2750 4200 3300 4200
+Wire Wire Line
+	3200 4400 3200 3900
+Connection ~ 3200 3900
+Wire Wire Line
+	3200 3900 3800 3900
+Wire Wire Line
+	3300 4400 3300 4200
+Connection ~ 3300 4200
+Wire Wire Line
+	3300 4200 4600 4200
+Wire Wire Line
+	3400 4400 3400 4100
+Connection ~ 3400 4100
+Wire Wire Line
+	3400 4100 4100 4100
 $EndSCHEMATC
