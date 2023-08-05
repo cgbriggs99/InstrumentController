@@ -154,7 +154,7 @@ U 1 1 64D0A96B
 P 2450 4100
 F 0 "J5" H 2507 4567 50  0000 C CNN
 F 1 "USB_B_Micro" H 2507 4476 50  0000 C CNN
-F 2 "Connector_USB:USB_Micro-B_Molex-105017-0001" H 2600 4050 50  0001 C CNN
+F 2 "Connector_USB:USB_Micro-B_Amphenol_10118194_Horizontal" H 2600 4050 50  0001 C CNN
 F 3 "~" H 2600 4050 50  0001 C CNN
 	1    2450 4100
 	1    0    0    -1  
@@ -229,7 +229,7 @@ F 1 "22.1 K" H 4020 3455 50  0000 L CNN
 F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder" V 3880 3500 50  0001 C CNN
 F 3 "~" H 3950 3500 50  0001 C CNN
 	1    3950 3500
-	1    0    0    -1  
+	-1   0    0    1   
 $EndComp
 $Comp
 L Device:R R5
@@ -283,7 +283,7 @@ U 1 1 64D32BE5
 P 8450 2900
 F 0 "Q1" H 8640 2946 50  0000 L CNN
 F 1 "S8050" H 8640 2855 50  0000 L CNN
-F 2 "Package_TO_SOT_THT:TO-92_Inline" H 8650 2825 50  0001 L CIN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8650 2825 50  0001 L CIN
 F 3 "http://www.unisonic.com.tw/datasheet/S8050.pdf" H 8450 2900 50  0001 L CNN
 	1    8450 2900
 	1    0    0    -1  
