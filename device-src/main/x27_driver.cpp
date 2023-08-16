@@ -2,6 +2,8 @@
 #include "drivers.hpp"
 #include <PubSubClient.h>
 #include "topics.hpp"
+#include "packets.hpp"
+#include "shift.hpp"
 
 static uint16_t last_goal = 0,
   curr_goal = 0;
@@ -30,7 +32,7 @@ void setup_x27(device_info_t info, PubSubClient &client) {
   client.publish(dev_info_topic, (uint8_t *) &packet, sizeof(device_info_packet));
 }
 
-uint8_t run_x27_loop(void) {
+uint16_t run_x27_loop(void) {
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     if(last_goal < curr_goal) {
 	    last_goal++;
@@ -41,6 +43,8 @@ uint8_t run_x27_loop(void) {
     shift_out(pattern + last_goal % 6, 1);
     
     delayMicroseconds(MOTOR_WAIT);
+  }
+  return STEPS_PER_FRAME * MOTOR_WAIT;
 }
 
 void run_x27_update(uint32_t steps) {

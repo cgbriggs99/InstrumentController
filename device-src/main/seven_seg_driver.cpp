@@ -1,5 +1,9 @@
 #include "seven-seg.hpp"
 #include "drivers.hpp"
+#include "topics.hpp"
+#include "device_info.hpp"
+#include "packets.hpp"
+#include "shift.hpp"
 #include <stdint.h>
 
 static uint8_t displays;
@@ -8,7 +12,7 @@ static uint8_t *pattern;
 static size_t size;
 
 void setup_7seg(device_info_t info, PubSubClient &client) {
-  switch(info.class) {
+  switch(info.devclass) {
   case TEST_7S_DISPLAY:
     client.subscribe(test_7s_topic);
     displays = 1;
@@ -32,7 +36,7 @@ uint16_t run_7seg_loop(void) {
   // Write the characters.
   for(int i = 0; i < sizeof(pattern); i++) {
     uint16_t data = position[i] << 8 | pattern[i];
-    shift_out(&data, 2);
+    shift_out((uint8_t *) &data, 2);
     delayMicroseconds(DELAY);
   }
 

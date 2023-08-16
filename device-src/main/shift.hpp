@@ -2,8 +2,9 @@
 #define __SHIFT_HPP__
 
 #include <stdint.h>
+#include <stdlib.h>
 
-extern void shift_out(uint8_t *data, size_t bytes);
+extern void shift_out(const uint8_t *data, size_t bytes);
 
 extern void shift_out_noclear(uint8_t data);
 

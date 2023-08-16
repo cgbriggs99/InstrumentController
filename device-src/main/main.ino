@@ -13,6 +13,7 @@
 #include "device_info.hpp"
 #include "packets.hpp"
 #include "topics.hpp"
+#include <esp32-hal-gpio.h>
 
 #define FRAME_TIME 30000
 
@@ -209,7 +210,7 @@ uint8_t get_id(void) {
 }
 
 uint8_t get_class(void) {
-  uint_t devcl = 0;
+  uint8_t devcl = 0;
   devcl |= digitalRead(DEVCL_4);
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_3);
@@ -227,7 +228,7 @@ void setup() {
   setup_pins();
 
   Serial.begin(9600);
-  info.devclass = get_class();
+  info.devclass = (device_class_t) get_class();
   info.devid = get_id();
 
   switch(info.devclass) {
@@ -253,10 +254,10 @@ void setup() {
     info.topic = clock_topic;
     break;
   case FUEL_GAUGE:
-    info.topic = fuel_gauge;
+    info.topic = fuel_gauge_topic;
     break;
   case OIL_GAUGE:
-    info.topic = oil_gauge;
+    info.topic = oil_gauge_topic;
     break;
   case RADIO:
     info.topic = radio_output_topic;

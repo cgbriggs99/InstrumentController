@@ -1,8 +1,10 @@
 #include "shift.hpp"
 #include "device_info.hpp"
 #include <stdint.h>
+#include <stdlib.h>
+#include <esp32-hal-gpio.h>
 
-void shift_out(uint8_t *data, size_t bytes) {
+void shift_out(const uint8_t *data, size_t bytes) {
   // Set multiplexed pin to be output.
   pinMode(DATA_IO, OUTPUT_OPEN_DRAIN);
 
