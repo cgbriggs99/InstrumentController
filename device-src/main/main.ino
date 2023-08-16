@@ -14,6 +14,8 @@
 #include "packets.hpp"
 #include "topics.hpp"
 
+#define FRAME_TIME 30000
+
 const char *ssid = "briggs";
 const char *passwd = "h0p0np0p";
 const char *server = "Little-Pink.local";
@@ -29,15 +31,43 @@ device_info_t info;
 bool received = false;
 
 void handle_message(const char *topic, uint8_t *payload, int size) {
+  static const char hex[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+  };
   received = true;
+  // Debug.
   Serial.print("Received: ");
-  Serial.println((char *) payload);
+  for(int i = 0; i < size; i++) {
+    Serial.print(hex[(payload[i] & 0xf0) >> 4]);
+    Serial.print(hex[payload[i] & 0x0f]);
+  }
+  Serial.print('\n');
+
+  motor_packet mpacket;
+  seven_seg_packet spacket;
+
   switch(info.devclass) {
   case TEST_28BYJ:
-    motor_packet packet;
-    memcpy(&packet, payload, sizeof(motor_packet));
+  case ALTIMETER:
+    memcpy(&mpacket, payload, sizeof(motor_packet));
 
-    run_28byj_update(packet.steps, packet.motor);
+    run_28byj_update(mpacket.steps, mpacket.motor);
+    break;
+  case TEST_X27:
+  case SPEDOMETER:
+  case TACHOMETER:
+  case FUEL_GAUGE:
+  case OIL_GAUGE:
+    memcpy(&mpacket, payload, sizeof(motor_packet));
+
+    run_x27_update(mpacket.steps);
+    break;
+  case TEST_7S_DISPLAY:
+  case CLOCK:
+  case RADIO:
+    memcpy(&spacket, payload, sizeof(seven_seg_packet));
+
+    run_7seg_update(spacket.bit_patterns, spacket.display);
     break;
   }
 }
@@ -144,13 +174,97 @@ void setup_mqtt(void) {
   connect_mqtt();
 }
 
+void setup_pins() {
+  pinMode(DEVID_0, INPUT);
+  pinMode(DEVID_1, INPUT);
+  pinMode(DEVID_2, INPUT);
+  pinMode(DEVID_3, INPUT);
+  pinMode(DEVCL_0, INPUT);
+  pinMode(DEVCL_1, INPUT);
+  pinMode(DEVCL_2, INPUT);
+  pinMode(DEVCL_3, INPUT);
+  pinMode(DEVCL_4, INPUT);
+
+  pinMode(DATA_IO, INPUT);
+  pinMode(SHCP_1, OUTPUT_OPEN_DRAIN);
+  pinMode(SHCP_2, OUTPUT_OPEN_DRAIN);
+  pinMode(STCP_1, OUTPUT_OPEN_DRAIN);
+  pinMode(STCP_2, OUTPUT_OPEN_DRAIN);
+  pinMode(OE_1, OUTPUT_OPEN_DRAIN);
+  pinMode(PL_2, OUTPUT_OPEN_DRAIN);
+  pinMode(MR_1, OUTPUT_OPEN_DRAIN);
+  pinMode(MR_2, OUTPUT_OPEN_DRAIN);
+}
+
+uint8_t get_id(void) {
+  uint8_t id = 0;
+  id |= digitalRead(DEVID_3);
+  id <<= 1;
+  id |= digitalRead(DEVID_2);
+  id <<= 1;
+  id |= digitalRead(DEVID_1);
+  id <<= 1;
+  id |= digitalRead(DEVID_0);
+  return id;
+}
+
+uint8_t get_class(void) {
+  uint_t devcl = 0;
+  devcl |= digitalRead(DEVCL_4);
+  devcl <<= 1;
+  devcl |= digitalRead(DEVCL_3);
+  devcl <<= 1;
+  devcl |= digitalRead(DEVCL_2);
+  devcl <<= 1;
+  devcl |= digitalRead(DEVCL_1);
+  devcl <<= 1;
+  devcl |= digitalRead(DEVCL_0);
+  return devcl;
+}
+
 void setup() {
   // put your setup code here, to run once:
+  setup_pins();
 
   Serial.begin(9600);
-  info.devclass = TEST_28BYJ;
-  info.devid = 0;
-  info.topic = test_28byj_topic;
+  info.devclass = get_class();
+  info.devid = get_id();
+
+  switch(info.devclass) {
+  case TEST_X27:
+    info.topic = test_x27_topic;
+    break;
+  case TEST_28BYJ:
+    info.topic = test_28byj_topic;
+    break;
+  case TEST_7S_DISPLAY:
+    info.topic = test_7s_topic;
+    break;
+  case ALTIMETER:
+    info.topic = altimeter_topic;
+    break;
+  case SPEDOMETER:
+    info.topic = spedometer_topic;
+    break;
+  case TACHOMETER:
+    info.topic = tachometer_topic;
+    break;
+  case CLOCK:
+    info.topic = clock_topic;
+    break;
+  case FUEL_GAUGE:
+    info.topic = fuel_gauge;
+    break;
+  case OIL_GAUGE:
+    info.topic = oil_gauge;
+    break;
+  case RADIO:
+    info.topic = radio_output_topic;
+    break;
+  default:
+    info.topic = nullptr;
+    break;
+  }
 
   sprintf(devid, "dev%d", info.devid);
 
@@ -160,9 +274,22 @@ void setup() {
 
   switch(info.devclass) {
   case TEST_28BYJ:
+  case ALTIMETER:
     setup_28byj(info, mqtt_client);
     break;
-
+  case TEST_X27:
+  case SPEDOMETER:
+  case TACHOMETER:
+  case FUEL_GAUGE:
+  case OIL_GAUGE:
+    setup_x27(info, mqtt_client);
+    break;
+  case TEST_7S_DISPLAY:
+  case RADIO:
+    setup_7seg(info, mqtt_client);
+    break;
+  default:
+    break;
   }
 }
 
@@ -185,9 +312,33 @@ void loop() {
 
   int diff = 0;
 
+  // Output classes.
   switch(info.devclass) {
   case TEST_28BYJ:
+  case ALTIMETER:
     diff = run_28byj_loop();
+    break;
+  case TEST_X27:
+  case SPEDOMETER:
+  case TACHOMETER:
+  case FUEL_GAUGE:
+  case OIL_GAUGE:
+    diff = run_x27_loop();
+    break;
+  case TEST_7S_DISPLAY:
+  case RADIO:
+  case CLOCK:
+    diff = run_7seg_loop();
+    break;
+  }
+
+  // Input classes.
+  switch(info.devclass) {
+  case RADIO:
+    diff += radio_interface_loop(mqtt_client);
+    break;
+  case ENGINE_STARTER:
+    diff += engine_starter_loop(mqtt_client);
     break;
   }
 
@@ -197,5 +348,7 @@ void loop() {
     Serial.println("Not received.");
   }
   received = false;
-  delayMicroseconds(30000 - diff);
+  if(diff < FRAME_TIME) {
+    delayMicroseconds(FRAME_TIME - diff);
+  }
 }

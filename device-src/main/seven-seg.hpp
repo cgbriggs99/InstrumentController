@@ -1,6 +1,8 @@
 #ifndef __SEVEN_SEG_HPP__
 #define __SEVEN_SEG_HPP__
 
+#include <stdint.h>
+
 uint8_t digits[] = {
   0b00000010, // 0
   0b10011110, // 1

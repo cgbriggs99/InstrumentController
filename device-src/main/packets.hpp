@@ -2,6 +2,7 @@
 #define __PACKETS_HPP__
 
 #include "device_info.hpp"
+#include <stdint.h>
 
 typedef struct {
   device_class_t devclass;
@@ -18,6 +19,10 @@ typedef struct {
   uint8_t display;
 } seven_seg_packet;
 
+typedef struct {
+  uint8_t buttons;
+  uint8_t encoder_positions[6];
+} radio_inputs;
 
 
 #endif

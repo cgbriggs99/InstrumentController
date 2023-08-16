@@ -16,22 +16,17 @@
 #define DEVCL_3 32
 #define DEVCL_4 33
 
+// Pins for the headers
+#define DATA_IO 23
+#define SHCP_1 22
+#define SHCP_2 17
+#define STCP_1 21
+#define STCP_2 16
+#define OE_1 19
+#define PL_2 4
+#define MR_1 18
+#define MR_2 2
 
-// Header pins. Note that header 3 may have some issues at the moment due to strapping.
-#define HEADER1_0 23
-#define HEADER1_1 22
-#define HEADER1_2 3
-#define HEADER1_3 1
-
-#define HEADER2_0 21
-#define HEADER2_1 19
-#define HEADER2_2 18
-#define HEADER2_3 17
-
-#define HEADER3_0 2
-#define HEADER3_1 4
-#define HEADER3_2 5
-#define HEADER3_3 16
 
 typedef enum {
   // Test drivers.
@@ -47,6 +42,7 @@ typedef enum {
   FUEL_GAUGE = 7,
   OIL_GAUGE = 8,
   RADIO = 9,
+  ENGINE_STARTER = 10,
 } device_class_t;
 
 // Hold the device info.

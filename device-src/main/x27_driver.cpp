@@ -3,12 +3,16 @@
 #include <PubSubClient.h>
 #include "topics.hpp"
 
-static uint16_t last_goals[3] = {0, 0, 0},
-  uint16_t curr_goals[3] = {0, 0, 0};
+static uint16_t last_goal = 0,
+  curr_goal = 0;
 static uint8_t is_calibrated = 0;
 
 #define MOTOR_WAIT 10000
 #define STEPS_PER_FRAME 10
+
+static const uint8_t pattern[] = {
+  9, 1, 4, 6, 2, 8
+};
 
 
 void setup_x27(device_info_t info, PubSubClient &client) {
@@ -26,8 +30,22 @@ void setup_x27(device_info_t info, PubSubClient &client) {
   client.publish(dev_info_topic, (uint8_t *) &packet, sizeof(device_info_packet));
 }
 
+uint8_t run_x27_loop(void) {
+  for(int i = 0; i < STEPS_PER_FRAME; i++) {
+    if(last_goal < curr_goal) {
+	    last_goal++;
+    } else if(last_goal > curr_goal) {
+	    last_goal--;
+    }
 
-  
+    shift_out(pattern + last_goal % 6, 1);
+    
+    delayMicroseconds(MOTOR_WAIT);
+}
+
+void run_x27_update(uint32_t steps) {
+  curr_goal = steps;
+}
 
   
 
