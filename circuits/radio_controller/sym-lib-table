@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "radio_controller-rescue")(type "Legacy")(uri "${KIPRJMOD}/radio_controller-rescue.lib")(options "")(descr ""))
+)

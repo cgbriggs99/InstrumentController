@@ -9,7 +9,7 @@ static uint16_t last_goal = 0,
   curr_goal = 0;
 static uint8_t is_calibrated = 0;
 
-#define MOTOR_WAIT 10000
+#define MOTOR_WAIT 100
 #define STEPS_PER_FRAME 10
 
 static const uint8_t pattern[] = {
@@ -18,6 +18,7 @@ static const uint8_t pattern[] = {
 
 
 void setup_x27(device_info_t info, PubSubClient &client) {
+  Serial.printf("Setting up x27 device.\n");
   // Subscribe to the appropriate topic.
   switch(info.devclass) {
   case TEST_X27:
@@ -33,6 +34,7 @@ void setup_x27(device_info_t info, PubSubClient &client) {
 }
 
 uint16_t run_x27_loop(void) {
+  Serial.printf("Rotating from %d to %d.\n", last_goal, curr_goal);
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     if(last_goal < curr_goal) {
 	    last_goal++;

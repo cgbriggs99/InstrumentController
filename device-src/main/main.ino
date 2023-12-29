@@ -14,12 +14,14 @@
 #include "packets.hpp"
 #include "topics.hpp"
 #include <esp32-hal-gpio.h>
+#include "soc/rtc_wdt.h"
+
 
 #define FRAME_TIME 30000
 
 const char *ssid = "briggs";
 const char *passwd = "h0p0np0p";
-const char *server = "Little-Pink.local";
+const char *server = "192.168.6.124";
 uint16_t port = 1883;
 
 char devid[32];
@@ -75,8 +77,10 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
 
 // Set up the WiFi module.
 void setup_wifi(void) {
-  delay(10);  // Give a bit of room for setup.
-  Serial.println("Setting up WiFi.");
+  delay(100);  // Give a bit of room for setup. 
+
+  Serial.printf("Settting up Wifi %s %s\n", ssid, passwd);
+  
   wl_status_t stat = WiFi.begin(ssid, passwd);
 
   switch(stat) {
@@ -198,6 +202,7 @@ void setup_pins() {
 }
 
 uint8_t get_id(void) {
+  /*
   uint8_t id = 0;
   id |= digitalRead(DEVID_3);
   id <<= 1;
@@ -206,10 +211,12 @@ uint8_t get_id(void) {
   id |= digitalRead(DEVID_1);
   id <<= 1;
   id |= digitalRead(DEVID_0);
-  return id;
+  */
+  return 0;
 }
 
 uint8_t get_class(void) {
+  /*
   uint8_t devcl = 0;
   devcl |= digitalRead(DEVCL_4);
   devcl <<= 1;
@@ -220,14 +227,16 @@ uint8_t get_class(void) {
   devcl |= digitalRead(DEVCL_1);
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_0);
-  return devcl;
+  */
+  return TEST_28BYJ;
 }
 
 void setup() {
-  // put your setup code here, to run once:
-  setup_pins();
 
   Serial.begin(9600);
+
+  setup_pins();
+
   info.devclass = (device_class_t) get_class();
   info.devid = get_id();
 
@@ -343,11 +352,6 @@ void loop() {
     break;
   }
 
-  if(received) {
-    Serial.println("Received!");
-  } else {
-    Serial.println("Not received.");
-  }
   received = false;
   if(diff < FRAME_TIME) {
     delayMicroseconds(FRAME_TIME - diff);

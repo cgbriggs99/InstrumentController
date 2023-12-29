@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "28byj_controller-rescue")(type "Legacy")(uri "${KIPRJMOD}/28byj_controller-rescue.lib")(options "")(descr ""))
+)

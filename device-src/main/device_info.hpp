@@ -1,4 +1,4 @@
-#ifndef __DEVICE_INFO_HPP__
+  #ifndef __DEVICE_INFO_HPP__
 #define __DEVICE_INFO_HPP__
 
 #include <stdint.h>

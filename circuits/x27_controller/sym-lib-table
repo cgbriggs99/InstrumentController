@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "x27_controller-rescue")(type "Legacy")(uri "${KIPRJMOD}/x27_controller-rescue.lib")(options "")(descr ""))
+)

@@ -12,6 +12,7 @@ void shift_out(const uint8_t *data, size_t bytes) {
   digitalWrite(MR_1, LOW);
   digitalWrite(OE_1, LOW);
   digitalWrite(STCP_1, HIGH);
+  delayMicroseconds(10);
   digitalWrite(STCP_1, LOW);
   digitalWrite(MR_1, HIGH);
 
@@ -20,11 +21,13 @@ void shift_out(const uint8_t *data, size_t bytes) {
     for(uint8_t j = 0; j < 8; j++) {
       digitalWrite(DATA_IO, (data[i] & (1 << (7 - j)))? HIGH: LOW);
       digitalWrite(SHCP_1, HIGH);
+      delayMicroseconds(10);
       digitalWrite(SHCP_1, LOW);
     }
   }
   // Send the data to the output pins.
   digitalWrite(STCP_1, HIGH);
+  delayMicroseconds(10);
   digitalWrite(STCP_1, LOW);
 }
 

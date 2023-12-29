@@ -10,7 +10,7 @@ static uint32_t last_goals[] = {0, 0};
 static uint32_t curr_goals[] = {0, 0};
 static uint8_t is_calibrated = 0;
 
-#define MOTOR_WAIT 10000
+#define MOTOR_WAIT 100
 #define STEPS_PER_FRAME 10
 #define STEPS_PER_ROTATION 256
 
@@ -35,10 +35,12 @@ void setup_28byj(device_info_t info, PubSubClient &client) {
 }
 
 void run_28byj_update(uint32_t steps, uint8_t motor) {
-  curr_goals[motor] = steps;
+  curr_goals[0] = steps;
 };
 
 uint16_t run_28byj_loop(void) {
+
+  Serial.printf("Rotating first motor from %d to %d.\n", last_goals[0], curr_goals[0]);
 
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     for(int j = 0; j < 2; j++) {

@@ -1,0 +1,127 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 4 6
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Regulator_Linear:AMS1117-5.0 U3
+U 1 1 64CFB912
+P 5300 3350
+F 0 "U3" H 5300 3592 50  0000 C CNN
+F 1 "AMS1117-5.0" H 5300 3501 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 5300 3550 50  0001 C CNN
+F 3 "http://www.advanced-monolithic.com/pdf/ds1117.pdf" H 5400 3100 50  0001 C CNN
+	1    5300 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C3
+U 1 1 64CFC4B1
+P 4700 3600
+F 0 "C3" H 4818 3646 50  0000 L CNN
+F 1 "10 uF" H 4818 3555 50  0000 L CNN
+F 2 "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm" H 4738 3450 50  0001 C CNN
+F 3 "~" H 4700 3600 50  0001 C CNN
+	1    4700 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C4
+U 1 1 64CFC9F7
+P 5850 3600
+F 0 "C4" H 5968 3646 50  0000 L CNN
+F 1 "22 uF" H 5968 3555 50  0000 L CNN
+F 2 "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm" H 5888 3450 50  0001 C CNN
+F 3 "~" H 5850 3600 50  0001 C CNN
+	1    5850 3600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 3350 4700 3350
+Wire Wire Line
+	4700 3350 4700 3450
+Wire Wire Line
+	5600 3350 5850 3350
+Wire Wire Line
+	5850 3350 5850 3450
+$Comp
+L power:+5V #PWR0107
+U 1 1 64CFD200
+P 5850 3350
+F 0 "#PWR0107" H 5850 3200 50  0001 C CNN
+F 1 "+5V" H 5865 3523 50  0000 C CNN
+F 2 "" H 5850 3350 50  0001 C CNN
+F 3 "" H 5850 3350 50  0001 C CNN
+	1    5850 3350
+	1    0    0    -1  
+$EndComp
+Connection ~ 5850 3350
+$Comp
+L power:Earth #PWR0108
+U 1 1 64CFFD79
+P 4700 3750
+F 0 "#PWR0108" H 4700 3500 50  0001 C CNN
+F 1 "Earth" H 4700 3600 50  0001 C CNN
+F 2 "" H 4700 3750 50  0001 C CNN
+F 3 "~" H 4700 3750 50  0001 C CNN
+	1    4700 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:Earth #PWR0109
+U 1 1 64CFFFED
+P 5300 3650
+F 0 "#PWR0109" H 5300 3400 50  0001 C CNN
+F 1 "Earth" H 5300 3500 50  0001 C CNN
+F 2 "" H 5300 3650 50  0001 C CNN
+F 3 "~" H 5300 3650 50  0001 C CNN
+	1    5300 3650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:Earth #PWR0110
+U 1 1 64D0028F
+P 5850 3750
+F 0 "#PWR0110" H 5850 3500 50  0001 C CNN
+F 1 "Earth" H 5850 3600 50  0001 C CNN
+F 2 "" H 5850 3750 50  0001 C CNN
+F 3 "~" H 5850 3750 50  0001 C CNN
+	1    5850 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Barrel_Jack J6
+U 1 1 64DA5AEB
+P 3200 3450
+F 0 "J6" H 3257 3775 50  0000 C CNN
+F 1 "Barrel_Jack" H 3257 3684 50  0000 C CNN
+F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 3250 3410 50  0001 C CNN
+F 3 "~" H 3250 3410 50  0001 C CNN
+	1    3200 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 3350 4700 3350
+Connection ~ 4700 3350
+$Comp
+L power:Earth #PWR0111
+U 1 1 64DA674B
+P 3500 3550
+F 0 "#PWR0111" H 3500 3300 50  0001 C CNN
+F 1 "Earth" H 3500 3400 50  0001 C CNN
+F 2 "" H 3500 3550 50  0001 C CNN
+F 3 "~" H 3500 3550 50  0001 C CNN
+	1    3500 3550
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

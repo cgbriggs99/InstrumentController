@@ -1,0 +1,74 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 3 6
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Device:R R1
+U 1 1 64CFE08E
+P 5200 2700
+F 0 "R1" H 5270 2746 50  0000 L CNN
+F 1 "1 K" H 5270 2655 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder" V 5130 2700 50  0001 C CNN
+F 3 "~" H 5200 2700 50  0001 C CNN
+	1    5200 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R2
+U 1 1 64CFE18B
+P 5200 3000
+F 0 "R2" H 5270 3046 50  0000 L CNN
+F 1 "2 K" H 5270 2955 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder" V 5130 3000 50  0001 C CNN
+F 3 "~" H 5200 3000 50  0001 C CNN
+	1    5200 3000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0104
+U 1 1 64CFE41A
+P 5200 2550
+F 0 "#PWR0104" H 5200 2400 50  0001 C CNN
+F 1 "+5V" H 5215 2723 50  0000 C CNN
+F 2 "" H 5200 2550 50  0001 C CNN
+F 3 "" H 5200 2550 50  0001 C CNN
+	1    5200 2550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:Earth #PWR0105
+U 1 1 64CFE57F
+P 5200 3150
+F 0 "#PWR0105" H 5200 2900 50  0001 C CNN
+F 1 "Earth" H 5200 3000 50  0001 C CNN
+F 2 "" H 5200 3150 50  0001 C CNN
+F 3 "~" H 5200 3150 50  0001 C CNN
+	1    5200 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR0106
+U 1 1 64CFE71A
+P 5600 2850
+F 0 "#PWR0106" H 5600 2700 50  0001 C CNN
+F 1 "+3.3V" H 5615 3023 50  0000 C CNN
+F 2 "" H 5600 2850 50  0001 C CNN
+F 3 "" H 5600 2850 50  0001 C CNN
+	1    5600 2850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 2850 5600 2850
+Connection ~ 5200 2850
+$EndSCHEMATC

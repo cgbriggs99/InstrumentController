@@ -1,0 +1,33 @@
+C1: 10 uF Ceramic capacitor: CL21A106K0QNNN*
+C2: 0.1 uF Ceramic capacitor: CL21B104KCFNNN*
+C3: 10 uF Electrolytic capacitor: 860020372001
+C4: 22 uF Electrolytic capacitor: 860010472003
+C5: 4.7 uF Ceramic capacitor: CL21A475KAQNNN*
+C6: 0.1 uF Ceramic capacitor: CL21B104KCFNNN*
+D1: Triple Zener diode: SP0503BAHT
+J1: JST 1x5 2.5 mm connector: B5B-XH-A
+J2: JST 1x5 2.5 mm connector: B5B-XH-A
+J3: JST 1x2 2.5 mm connector: B2B-XH-A
+J4: JST 1x2 2.5 mm connector: B2B-XH-A
+J5: USB B Micro: 110118194
+J6: Barrel jack: KLDX-0202A
+JP1-JP9: Dupont connectors + jumpers
+Q1: NPN BJT: S8050
+R1: 1K resistor: ERJ-6ENF1001V
+R2: 2K resistor: ERJ-6ENF2001V
+R3: 1K resistor: ERJ-6ENF1001V
+R4: 22.1 K resistor: ERJ-6ENF2212V
+R5: 47.5 K resistor: ERJ-6ENF4752V
+R6: 1K resistor: ERJ-6ENF1001V
+R7: 1K resistor: ERJ-6ENF1001V
+R8: 10K resistor: ERJ-6ENF1002V
+R9: 1K resistor: ERJ-6ENF1001V
+R10: 10K resistor: ERJ-6ENF1002V
+R11: 10K resistor: ERJ-6ENF1002V
+R12: 10K resistor: ERJ-6ENF1002V
+R13: 10K resistor: ERJ-6ENF1002V
+R14: 10K resistor: ERJ-6ENF1002V
+R15: 10K resistor: ERJ-6ENF1002V
+U1: ESP32-WROOM-32 or equivalent
+U2: CP2102N-A-1-GQFN24 converter
+U3: AMS1117-5.0 LDO
