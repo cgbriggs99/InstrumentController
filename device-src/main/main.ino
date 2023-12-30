@@ -228,7 +228,7 @@ uint8_t get_class(void) {
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_0);
   */
-  return TEST_28BYJ;
+  return TEST_X27;
 }
 
 void setup() {

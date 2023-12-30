@@ -34,6 +34,7 @@ void setup_x27(device_info_t info, PubSubClient &client) {
 }
 
 uint16_t run_x27_loop(void) {
+  if (last_goal != curr_goal) {
   Serial.printf("Rotating from %d to %d.\n", last_goal, curr_goal);
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     if(last_goal < curr_goal) {
@@ -45,6 +46,7 @@ uint16_t run_x27_loop(void) {
     shift_out(pattern + last_goal % 6, 1);
     
     delayMicroseconds(MOTOR_WAIT);
+  }
   }
   return STEPS_PER_FRAME * MOTOR_WAIT;
 }

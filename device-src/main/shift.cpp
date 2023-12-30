@@ -1,3 +1,4 @@
+#include "esp32-hal.h"
 #include "shift.hpp"
 #include "device_info.hpp"
 #include <stdint.h>
@@ -9,23 +10,32 @@ void shift_out(const uint8_t *data, size_t bytes) {
   pinMode(DATA_IO, OUTPUT_OPEN_DRAIN);
 
   // Clear the storage register.
-  digitalWrite(MR_1, LOW);
+  digitalWrite(MR_1, HIGH);
   digitalWrite(OE_1, LOW);
-  digitalWrite(STCP_1, HIGH);
+  //digitalWrite(STCP_1, HIGH);
   delayMicroseconds(10);
-  digitalWrite(STCP_1, LOW);
+  //digitalWrite(STCP_1, LOW);
   digitalWrite(MR_1, HIGH);
 
+int k = 1;
   // Shift data.
   for(size_t i = 0; i < bytes; i++) {
     for(uint8_t j = 0; j < 8; j++) {
       digitalWrite(DATA_IO, (data[i] & (1 << (7 - j)))? HIGH: LOW);
+      k+=digitalRead(SHCP_1);
+      k+=digitalRead(SHCP_1);
+      k+=digitalRead(SHCP_1);
+
       digitalWrite(SHCP_1, HIGH);
       delayMicroseconds(10);
       digitalWrite(SHCP_1, LOW);
+      delayMicroseconds(10);
+
+      if (k > 1000) break;
     }
   }
   // Send the data to the output pins.
+  delayMicroseconds(1);
   digitalWrite(STCP_1, HIGH);
   delayMicroseconds(10);
   digitalWrite(STCP_1, LOW);
