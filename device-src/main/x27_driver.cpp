@@ -6,11 +6,11 @@
 #include "shift.hpp"
 
 static uint16_t last_goal = 0,
-  curr_goal = 0;
+                curr_goal = 0;
 static uint8_t is_calibrated = 0;
 
-#define MOTOR_WAIT 100
-#define STEPS_PER_FRAME 10
+#define MOTOR_WAIT 50
+#define STEPS_PER_FRAME 100
 
 static const uint8_t pattern[] = {
   9, 1, 4, 6, 2, 8
@@ -20,40 +20,39 @@ static const uint8_t pattern[] = {
 void setup_x27(device_info_t info, PubSubClient &client) {
   Serial.printf("Setting up x27 device.\n");
   // Subscribe to the appropriate topic.
-  switch(info.devclass) {
-  case TEST_X27:
-    client.subscribe(test_x27_topic);
-    break;
+  switch (info.devclass) {
+    case TEST_X27:
+      client.subscribe(test_x27_topic);
+      break;
   }
 
   // Create the device info packet to publish.
   device_info_packet packet = { info.devclass, info.devid };
 
   // Publish the packet.
-  client.publish(dev_info_topic, (uint8_t *) &packet, sizeof(device_info_packet));
+  client.publish(dev_info_topic, (uint8_t *)&packet, sizeof(device_info_packet));
 }
 
 uint16_t run_x27_loop(void) {
-  if (last_goal != curr_goal) {
-  Serial.printf("Rotating from %d to %d.\n", last_goal, curr_goal);
-  for(int i = 0; i < STEPS_PER_FRAME; i++) {
-    if(last_goal < curr_goal) {
-	    last_goal++;
-    } else if(last_goal > curr_goal) {
-	    last_goal--;
+    uint16_t ret = abs(last_goal - curr_goal);
+    if(ret > STEPS_PER_FRAME) {
+      ret = STEPS_PER_FRAME;
     }
-
-    shift_out(pattern + last_goal % 6, 1);
     
-    delayMicroseconds(MOTOR_WAIT);
-  }
-  }
-  return STEPS_PER_FRAME * MOTOR_WAIT;
+    for (int i = 0; i < STEPS_PER_FRAME && last_goal != curr_goal; i++) {
+      if (last_goal < curr_goal) {
+        last_goal++;
+      } else if (last_goal > curr_goal) {
+        last_goal--;
+      }
+
+      shift_out(pattern + last_goal % 6, 1);
+
+      delayMicroseconds(MOTOR_WAIT);
+    }
+    return ret * MOTOR_WAIT;
 }
 
 void run_x27_update(uint32_t steps) {
   curr_goal = steps;
 }
-
-  
-
