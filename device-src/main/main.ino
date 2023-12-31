@@ -19,9 +19,9 @@
 
 #define FRAME_TIME 10000
 
-const char *ssid = "briggs";
-const char *passwd = "h0p0np0p";
-const char *server = "192.168.6.124";
+const char *ssid = "Starbucks WiFi";
+const char *passwd = "HegelIsAwesome2277$";
+const char *server = "192.168.0.97";
 uint16_t port = 1883;
 
 char devid[32];
@@ -36,6 +36,7 @@ bool received = false;
 TaskHandle_t mqtt_task_handle;
 
 void handle_message(const char *topic, uint8_t *payload, int size) {
+  /*
   static const char hex[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
@@ -47,6 +48,8 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     Serial.print(hex[payload[i] & 0x0f]);
   }
   Serial.print('\n');
+  */
+  
 
   motor_packet mpacket;
   seven_seg_packet spacket;
@@ -230,12 +233,12 @@ uint8_t get_class(void) {
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_0);
   */
-  return TEST_28BYJ;
+  return TEST_X27;
 }
 
 void mqtt_task(void *ignored) {
   while (true) {
-    mqtt_client.subscribe(info.topic);
+    //mqtt_client.subscribe(info.topic);
 
     while (!WiFi.isConnected()) {
       Serial.println("WiFi disconnected.");
@@ -249,13 +252,15 @@ void mqtt_task(void *ignored) {
     }
     mqtt_client.loop();
 
-    delay(1);
+    delay(10);
   }
 }
 
 void setup() {
 
   Serial.begin(9600);
+
+  Serial.println(WiFi.macAddress());
 
   setup_pins();
 

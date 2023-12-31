@@ -9,13 +9,18 @@ static uint16_t last_goal = 0,
                 curr_goal = 0;
 static uint8_t is_calibrated = 0;
 
-#define MOTOR_WAIT 50
-#define STEPS_PER_FRAME 100
+#define MOTOR_WAIT 1000
+#define STEPS_PER_FRAME 10
 
+/*
 static const uint8_t pattern[] = {
   9, 1, 4, 6, 2, 8
 };
+*/
 
+static const uint8_t pattern[] = {
+  9, 8, 2, 6, 4, 1
+};
 
 void setup_x27(device_info_t info, PubSubClient &client) {
   Serial.printf("Setting up x27 device.\n");
@@ -49,6 +54,7 @@ uint16_t run_x27_loop(void) {
       shift_out(pattern + last_goal % 6, 1);
 
       delayMicroseconds(MOTOR_WAIT);
+      digitalWrite(OE_1, HIGH);
     }
     return ret * MOTOR_WAIT;
 }
