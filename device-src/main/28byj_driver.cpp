@@ -11,7 +11,7 @@ static uint32_t curr_goals[] = {0, 0};
 static uint8_t is_calibrated = 0;
 
 #define MOTOR_WAIT 1000
-#define STEPS_PER_FRAME 10
+#define STEPS_PER_FRAME 8
 #define STEPS_PER_ROTATION 256
 
 static const uint8_t pattern[] = {

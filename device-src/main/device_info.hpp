@@ -3,13 +3,7 @@
 
 #include <stdint.h>
 
-// Pins for the device id and the device class.
-// These four are input-only.
-#define DEVID_0 34
-#define DEVID_1 35
-#define DEVID_2 36
-#define DEVID_3 39
-
+// Pins for the device class.
 #define DEVCL_0 25
 #define DEVCL_1 26
 #define DEVCL_2 27
@@ -48,7 +42,7 @@ typedef enum {
 // Hold the device info.
 typedef struct {
   device_class_t devclass;
-  uint8_t devid;
+  uint64_t devid;
   const char *topic;
   
 } device_info_t;

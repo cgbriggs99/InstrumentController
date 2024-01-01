@@ -10,7 +10,7 @@ static uint16_t last_goal = 0,
 static uint8_t is_calibrated = 0;
 
 #define MOTOR_WAIT 1000
-#define STEPS_PER_FRAME 10
+#define STEPS_PER_FRAME 8
 
 /*
 static const uint8_t pattern[] = {

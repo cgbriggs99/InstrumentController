@@ -185,10 +185,6 @@ void setup_mqtt(void) {
 }
 
 void setup_pins() {
-  pinMode(DEVID_0, INPUT);
-  pinMode(DEVID_1, INPUT);
-  pinMode(DEVID_2, INPUT);
-  pinMode(DEVID_3, INPUT);
   pinMode(DEVCL_0, INPUT);
   pinMode(DEVCL_1, INPUT);
   pinMode(DEVCL_2, INPUT);
@@ -206,22 +202,7 @@ void setup_pins() {
   pinMode(MR_2, OUTPUT_OPEN_DRAIN);
 }
 
-uint8_t get_id(void) {
-  /*
-  uint8_t id = 0;
-  id |= digitalRead(DEVID_3);
-  id <<= 1;
-  id |= digitalRead(DEVID_2);
-  id <<= 1;
-  id |= digitalRead(DEVID_1);
-  id <<= 1;
-  id |= digitalRead(DEVID_0);
-  */
-  return 0;
-}
-
 uint8_t get_class(void) {
-  /*
   uint8_t devcl = 0;
   devcl |= digitalRead(DEVCL_4);
   devcl <<= 1;
@@ -232,8 +213,7 @@ uint8_t get_class(void) {
   devcl |= digitalRead(DEVCL_1);
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_0);
-  */
-  return TEST_X27;
+  return devcl;
 }
 
 void mqtt_task(void *ignored) {
@@ -265,7 +245,7 @@ void setup() {
   setup_pins();
 
   info.devclass = (device_class_t)get_class();
-  info.devid = get_id();
+  WiFi.macAddress((uint8_t *) &(info.devid));
 
   switch (info.devclass) {
     case TEST_X27:
@@ -303,7 +283,7 @@ void setup() {
       break;
   }
 
-  sprintf(devid, "dev%d", info.devid);
+  sprintf(devid, "dev%ld", info.devid);
 
   setup_wifi();
   setup_mqtt();
