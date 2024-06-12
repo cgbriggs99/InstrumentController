@@ -22,14 +22,12 @@ int k = 1;
   for(size_t i = 0; i < bytes; i++) {
     for(uint8_t j = 0; j < 8; j++) {
       digitalWrite(DATA_IO, (data[i] & (1 << (7 - j)))? HIGH: LOW);
-      k+=digitalRead(SHCP_1);
-      k+=digitalRead(SHCP_1);
-      k+=digitalRead(SHCP_1);
+      delayMicroseconds(5);
 
       digitalWrite(SHCP_1, HIGH);
       delayMicroseconds(10);
       digitalWrite(SHCP_1, LOW);
-      delayMicroseconds(10);
+      delayMicroseconds(5);
 
       if (k > 1000) break;
     }

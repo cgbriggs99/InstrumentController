@@ -19,9 +19,9 @@
 
 #define FRAME_TIME 10000
 
-const char *ssid = "briggs";
-const char *passwd = "h0p0np0p";
-const char *server = "192.168.6.124";
+const char *ssid = "Starbucks WiFi";
+const char *passwd = "HegelIsAwesome2277$";
+const char *server = "192.168.0.97";
 uint16_t port = 1883;
 
 char devid[32];
@@ -36,6 +36,7 @@ bool received = false;
 TaskHandle_t mqtt_task_handle;
 
 void handle_message(const char *topic, uint8_t *payload, int size) {
+  /*
   static const char hex[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
@@ -47,6 +48,8 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     Serial.print(hex[payload[i] & 0x0f]);
   }
   Serial.print('\n');
+  */
+  
 
   motor_packet mpacket;
   seven_seg_packet spacket;
@@ -182,10 +185,6 @@ void setup_mqtt(void) {
 }
 
 void setup_pins() {
-  pinMode(DEVID_0, INPUT);
-  pinMode(DEVID_1, INPUT);
-  pinMode(DEVID_2, INPUT);
-  pinMode(DEVID_3, INPUT);
   pinMode(DEVCL_0, INPUT);
   pinMode(DEVCL_1, INPUT);
   pinMode(DEVCL_2, INPUT);
@@ -203,22 +202,7 @@ void setup_pins() {
   pinMode(__MR_2, OUTPUT_OPEN_DRAIN);
 }
 
-uint8_t get_id(void) {
-  /*
-  uint8_t id = 0;
-  id |= digitalRead(DEVID_3);
-  id <<= 1;
-  id |= digitalRead(DEVID_2);
-  id <<= 1;
-  id |= digitalRead(DEVID_1);
-  id <<= 1;
-  id |= digitalRead(DEVID_0);
-  */
-  return 0;
-}
-
 uint8_t get_class(void) {
-  /*
   uint8_t devcl = 0;
   devcl |= digitalRead(DEVCL_4);
   devcl <<= 1;
@@ -229,13 +213,12 @@ uint8_t get_class(void) {
   devcl |= digitalRead(DEVCL_1);
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_0);
-  */
-  return TEST_28BYJ;
+  return devcl;
 }
 
 void mqtt_task(void *ignored) {
   while (true) {
-    mqtt_client.subscribe(info.topic);
+    //mqtt_client.subscribe(info.topic);
 
     while (!WiFi.isConnected()) {
       Serial.println("WiFi disconnected.");
@@ -249,7 +232,7 @@ void mqtt_task(void *ignored) {
     }
     mqtt_client.loop();
 
-    delay(1);
+    delay(10);
   }
 }
 
@@ -257,10 +240,12 @@ void setup() {
 
   Serial.begin(9600);
 
+  Serial.println(WiFi.macAddress());
+
   setup_pins();
 
   info.devclass = (device_class_t)get_class();
-  info.devid = get_id();
+  WiFi.macAddress((uint8_t *) &(info.devid));
 
   switch (info.devclass) {
     case TEST_X27:
@@ -298,7 +283,7 @@ void setup() {
       break;
   }
 
-  sprintf(devid, "dev%d", info.devid);
+  sprintf(devid, "dev%ld", info.devid);
 
   setup_wifi();
   setup_mqtt();

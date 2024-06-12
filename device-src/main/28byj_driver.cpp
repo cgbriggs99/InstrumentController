@@ -10,12 +10,12 @@ static uint32_t last_goals[] = {0, 0};
 static uint32_t curr_goals[] = {0, 0};
 static uint8_t is_calibrated = 0;
 
-#define MOTOR_WAIT 1000000
-#define STEPS_PER_FRAME 1
+#define MOTOR_WAIT 1000
+#define STEPS_PER_FRAME 8
 #define STEPS_PER_ROTATION 256
 
 static const uint8_t pattern[] = {
-  0x8, 0xc, 0x4, 0x6, 0x2, 0x3, 0x1, 0x9
+  0x7, 0x3, 0xb, 0x9, 0xd, 0xc, 0xe, 0x6
 };
 
 void setup_28byj(device_info_t info, PubSubClient &client) {
@@ -39,6 +39,15 @@ void run_28byj_update(uint32_t steps, uint8_t motor) {
 };
 
 uint32_t run_28byj_loop(void) {
+  bool quit = true;
+  for(int i = 0; i < 2; i++) {
+    if(curr_goals[i] != last_goals[i]) {
+      quit = false;
+    }
+  }
+  if(quit) {
+    return 0;
+  }
 
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     for(int j = 0; j < 2; j++) {
@@ -49,9 +58,9 @@ uint32_t run_28byj_loop(void) {
       }
     }
 
-    uint8_t data[] = {pattern[last_goals[0] % 8], pattern[last_goals[1] % 8]};
+    uint8_t data = pattern[last_goals[0] % 8] | (pattern[last_goals[1] % 8] << 4);
 
-    shift_out(data, 2);
+    shift_out(&data, 1);
     
     delayMicroseconds(MOTOR_WAIT);
   }
