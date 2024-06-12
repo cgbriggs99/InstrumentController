@@ -33,7 +33,7 @@ void setup_x27(device_info_t info, PubSubClient &client) {
   client.publish(dev_info_topic, (uint8_t *)&packet, sizeof(device_info_packet));
 }
 
-uint16_t run_x27_loop(void) {
+uint32_t run_x27_loop(void) {
     uint16_t ret = abs(last_goal - curr_goal);
     if(ret > STEPS_PER_FRAME) {
       ret = STEPS_PER_FRAME;

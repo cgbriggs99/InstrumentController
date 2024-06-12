@@ -38,7 +38,7 @@ void run_28byj_update(uint32_t steps, uint8_t motor) {
   curr_goals[0] = steps;
 };
 
-uint16_t run_28byj_loop(void) {
+uint32_t run_28byj_loop(void) {
 
   for(int i = 0; i < STEPS_PER_FRAME; i++) {
     for(int j = 0; j < 2; j++) {

@@ -199,8 +199,8 @@ void setup_pins() {
   pinMode(STCP_2, OUTPUT_OPEN_DRAIN);
   pinMode(OE_1, OUTPUT_OPEN_DRAIN);
   pinMode(PL_2, OUTPUT_OPEN_DRAIN);
-  pinMode(MR_1, OUTPUT_OPEN_DRAIN);
-  pinMode(MR_2, OUTPUT_OPEN_DRAIN);
+  pinMode(__MR_1, OUTPUT_OPEN_DRAIN);
+  pinMode(__MR_2, OUTPUT_OPEN_DRAIN);
 }
 
 uint8_t get_id(void) {
@@ -330,7 +330,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  int diff = 0;
+  uint32_t diff = 0;
 
   // Output classes.
   switch (info.devclass) {

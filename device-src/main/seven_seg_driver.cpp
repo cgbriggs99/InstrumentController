@@ -32,7 +32,7 @@ void setup_7seg(device_info_t info, PubSubClient &client) {
 }
 
 #define DELAY 1000
-uint16_t run_7seg_loop(void) {
+uint32_t run_7seg_loop(void) {
   // Write the characters.
   for(int i = 0; i < sizeof(pattern); i++) {
     uint16_t data = position[i] << 8 | pattern[i];

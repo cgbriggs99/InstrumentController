@@ -24,8 +24,8 @@
 #define STCP_2 16
 #define OE_1 19
 #define PL_2 4
-#define MR_1 18
-#define MR_2 2
+#define __MR_1 18
+#define __MR_2 2
 
 
 typedef enum {

@@ -7,7 +7,7 @@
 
 #define RETVAL 10000
 
-uint16_t radio_interface_loop(PubSubClient &client) {
+uint32_t radio_interface_loop(PubSubClient &client) {
   radio_inputs packet;
   shift_in((uint8_t *) &packet, sizeof(radio_inputs));
 
@@ -15,7 +15,7 @@ uint16_t radio_interface_loop(PubSubClient &client) {
   return RETVAL;
 }
 
-uint16_t engine_starter_loop(PubSubClient &client) {
+uint32_t engine_starter_loop(PubSubClient &client) {
   uint8_t packet;
   shift_in((uint8_t *) &packet, 1);
 

@@ -10,12 +10,12 @@ void shift_out(const uint8_t *data, size_t bytes) {
   pinMode(DATA_IO, OUTPUT_OPEN_DRAIN);
 
   // Clear the storage register.
-  digitalWrite(MR_1, HIGH);
+  digitalWrite(__MR_1, HIGH);
   digitalWrite(OE_1, LOW);
   //digitalWrite(STCP_1, HIGH);
   delayMicroseconds(10);
   //digitalWrite(STCP_1, LOW);
-  digitalWrite(MR_1, HIGH);
+  digitalWrite(__MR_1, HIGH);
 
 int k = 1;
   // Shift data.
@@ -57,7 +57,7 @@ void shift_in(uint8_t *data, size_t bytes) {
   pinMode(DATA_IO, INPUT);
 
   // Clear shift register.
-  digitalWrite(MR_2, LOW);
+  digitalWrite(__MR_2, LOW);
   digitalWrite(PL_2, HIGH);
 
   // Load data onto the shift register.
@@ -66,7 +66,7 @@ void shift_in(uint8_t *data, size_t bytes) {
   digitalWrite(STCP_2, LOW);
   
   // Load into register.
-  digitalWrite(MR_2, HIGH);
+  digitalWrite(__MR_2, HIGH);
   digitalWrite(PL_2, LOW);
   digitalWrite(STCP_2, HIGH);
   digitalWrite(STCP_2, LOW);
