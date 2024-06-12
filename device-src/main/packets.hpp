@@ -6,7 +6,7 @@
 
 typedef struct {
   device_class_t devclass;
-  uint8_t devid;
+  uint64_t devid;
 } device_info_packet;
 
 typedef struct {
