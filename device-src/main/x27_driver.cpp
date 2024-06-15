@@ -18,6 +18,7 @@ static const uint8_t pattern[] = {
 };
 */
 
+// The bit patterns for the motor poles.
 static const uint8_t pattern[] = {
   9, 8, 2, 6, 4, 1
 };

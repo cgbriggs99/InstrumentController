@@ -19,9 +19,9 @@
 
 #define FRAME_TIME 10000
 
-const char *ssid = "Starbucks WiFi";
-const char *passwd = "HegelIsAwesome2277$";
-const char *server = "192.168.0.97";
+const char *ssid = "GirlsOnly";
+const char *passwd = "CoffeeMakesMePoop";
+const char *server = "192.168.1.153";
 uint16_t port = 1883;
 
 char devid[32];
@@ -234,6 +234,17 @@ void mqtt_task(void *ignored) {
 
     delay(10);
   }
+}
+
+void setup_wdt() {
+  uint32_t *rtc_wdt_config0 = (uint32_t *) 0x3FF4808C;
+  *rtc_wdt_config0 &= 0x7fffffff;
+
+  uint32_t *tmr1_wdt_config0 = (uint32_t *) 0x3FF5F048;
+  *tmr1_wdt_config0 &= 0x7fffffff;
+  
+  uint32_t *tmr2_wdt_config0 = (uint32_t *) 0x3FF60048;
+  *tmr2_wdt_config0 &= 0x7fffffff;
 }
 
 void setup() {

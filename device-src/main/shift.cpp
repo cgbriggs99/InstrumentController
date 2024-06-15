@@ -17,14 +17,18 @@ void shift_out(const uint8_t *data, size_t bytes) {
   //digitalWrite(STCP_1, LOW);
   digitalWrite(__MR_1, HIGH);
 
-int k = 1;
+  int k = 1;
   // Shift data.
   for(size_t i = 0; i < bytes; i++) {
     for(uint8_t j = 0; j < 8; j++) {
+      // Load the bit onto the bus.
       digitalWrite(DATA_IO, (data[i] & (1 << (7 - j)))? HIGH: LOW);
+      // Wait for logic to happen.
       delayMicroseconds(5);
 
+      // Unlock the register.
       digitalWrite(SHCP_1, HIGH);
+      // Wait for the register to read.
       delayMicroseconds(10);
       digitalWrite(SHCP_1, LOW);
       delayMicroseconds(5);
