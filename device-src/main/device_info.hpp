@@ -43,8 +43,6 @@ typedef enum {
 typedef struct {
   device_class_t devclass;
   uint64_t devid;
-  const char *topic;
-  
 } device_info_t;
 
 

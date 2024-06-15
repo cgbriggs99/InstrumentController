@@ -1,6 +1,7 @@
 #ifndef __TOPICS_HPP__
 #define __TOPICS_HPP__
-
+ 
+#include <PubSubClient.h>
 
 // Constant topics.
 extern const char *will_topic;
@@ -17,7 +18,17 @@ extern const char *oil_gauge_topic;
 extern const char *radio_output_topic;
 extern const char *radio_input_topic;
 extern const char *engine_starter_topic;
+extern const char *debug_topic;
 
+#ifdef DEBUG
+inline void debug_pub(char *str, PubSubClient &client) {
+  client.publish(debug_topic, str, strlen(str));
+}
+#else
+inline void debug_pub(char *str, PubSubClient &client) {
+  return;
+}
+#endif
 
 
 #endif

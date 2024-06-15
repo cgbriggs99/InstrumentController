@@ -258,42 +258,6 @@ void setup() {
   info.devclass = (device_class_t)get_class();
   WiFi.macAddress((uint8_t *) &(info.devid));
 
-  switch (info.devclass) {
-    case TEST_X27:
-      info.topic = test_x27_topic;
-      break;
-    case TEST_28BYJ:
-      info.topic = test_28byj_topic;
-      break;
-    case TEST_7S_DISPLAY:
-      info.topic = test_7s_topic;
-      break;
-    case ALTIMETER:
-      info.topic = altimeter_topic;
-      break;
-    case SPEDOMETER:
-      info.topic = spedometer_topic;
-      break;
-    case TACHOMETER:
-      info.topic = tachometer_topic;
-      break;
-    case CLOCK:
-      info.topic = clock_topic;
-      break;
-    case FUEL_GAUGE:
-      info.topic = fuel_gauge_topic;
-      break;
-    case OIL_GAUGE:
-      info.topic = oil_gauge_topic;
-      break;
-    case RADIO:
-      info.topic = radio_output_topic;
-      break;
-    default:
-      info.topic = nullptr;
-      break;
-  }
-
   sprintf(devid, "dev%ld", info.devid);
 
   setup_wifi();

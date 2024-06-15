@@ -15,3 +15,4 @@ const char *oil_gauge_topic = "/top/oil";
 const char *radio_output_topic = "/top/radio/display";
 const char *radio_input_topic = "/top/radio/interface";
 const char *engine_starter_topic = "/top/starter";
+const char *debug_topic = "/top/debug";
