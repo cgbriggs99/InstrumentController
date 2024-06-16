@@ -14,7 +14,6 @@
 #include "packets.hpp"
 #include "topics.hpp"
 #include <esp32-hal-gpio.h>
-#include "soc/rtc_wdt.h"
 
 
 #define FRAME_TIME 10000
@@ -36,7 +35,7 @@ bool received = false;
 TaskHandle_t mqtt_task_handle;
 
 void handle_message(const char *topic, uint8_t *payload, int size) {
-  /*
+#ifdef DEBUG
   static const char hex[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
@@ -48,7 +47,7 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     Serial.print(hex[payload[i] & 0x0f]);
   }
   Serial.print('\n');
-  */
+#endif
   
 
   motor_packet mpacket;
