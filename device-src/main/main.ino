@@ -1,8 +1,8 @@
 /*
- * main.ino
- * 
- * This is the main file for the PilotWave project.
- */
+   main.ino
+
+   This is the main file for the PilotWave project.
+*/
 
 #include <PubSubClient.h>
 #include <WiFi.h>
@@ -43,40 +43,40 @@ bool received = false;
 TaskHandle_t mqtt_task_handle;
 
 /**
- * Convert a text packet into a motor packet.
- * 
- * The command should start with "turn". After that,
- * you may specify "motor" followed by a motor number.
- * If no motor number is specified, motor 0 is used.
- * Then, specify the number of steps or degrees. You may
- * specify whether the number is steps or degrees. If no
- * units are specified, degrees are assumed.
- * 
- * @param out The motor packet output.
- * @param input The input buffer containing the text.
- * @param size The length of the packet.
- * @return 0 on success, -1 on failure.
- */
+   Convert a text packet into a motor packet.
+
+   The command should start with "turn". After that,
+   you may specify "motor" followed by a motor number.
+   If no motor number is specified, motor 0 is used.
+   Then, specify the number of steps or degrees. You may
+   specify whether the number is steps or degrees. If no
+   units are specified, degrees are assumed.
+
+   @param out The motor packet output.
+   @param input The input buffer containing the text.
+   @param size The length of the packet.
+   @return 0 on success, -1 on failure.
+*/
 int convert_text(motor_packet *out, const uint8_t *input, int size) {
-  if(strncasecmp("turn", (const char *) input, 5) != 0) {
+  if (strncasecmp("turn", (const char *) input, 5) != 0) {
     return -1;
   }
   int i = 5;
   // Skip spaces
-  while(isblank(input[i])) {
+  while (isblank(input[i])) {
     i++;
   }
 
-  if(strncasecmp("motor", (const char *) input + i, (size - i < 5)? size - i: 5) == 0) {
+  if (strncasecmp("motor", (const char *) input + i, (size - i < 5) ? size - i : 5) == 0) {
     i += 5;
     // Skip spaces
-    while(isblank(input[i])) {
+    while (isblank(input[i])) {
       i++;
     }
     uint8_t motor;
     sscanf((const char *) input + i, "%hhu", &motor);
     out->motor = motor;
-    while(!isblank(input[i])) {
+    while (!isblank(input[i])) {
       i++;
     }
   } else {
@@ -86,46 +86,46 @@ int convert_text(motor_packet *out, const uint8_t *input, int size) {
   int32_t turns;
   sscanf((const char *) input + i, "%d", &turns);
 
-  while(i < size && !isblank(input[i])) {
+  while (i < size && !isblank(input[i])) {
     i++;
   }
 
-  if(strncasecmp("step", (const char *) input + i, (size - i < 4)? size - i: 4) == 0) {
-    while(i < size && !isblank(input[i])) {
+  if (strncasecmp("step", (const char *) input + i, (size - i < 4) ? size - i : 4) == 0) {
+    while (i < size && !isblank(input[i])) {
       i++;
     }
     out->steps = *(uint32_t *) &turns;
   } else {
     int32_t temp;
-    switch(info.devclass) {
-    case TEST_28BYJ:
-    case ALTIMETER:
-      temp = (int32_t) ((float) turns * 2048.0f / 360.0f);
-      out->steps = *(uint32_t *) &temp;
-      break;
-    case TEST_X27:
-    case SPEDOMETER:
-    case TACHOMETER:
-    case FUEL_GAUGE:
-    case OIL_GAUGE:
-      temp = (int32_t) ((float) turns * 600.0f / 315.0f);
-      out->steps = *(uint32_t *) &temp;
-      break;
-    default:
-      // Don't know how to handle this device class, so assume steps.
-      out->steps = *(uint32_t *) &turns;
+    switch (info.devclass) {
+      case TEST_28BYJ:
+      case ALTIMETER:
+        temp = (int32_t) ((float) turns * 2048.0f / 360.0f);
+        out->steps = *(uint32_t *) &temp;
+        break;
+      case TEST_X27:
+      case SPEDOMETER:
+      case TACHOMETER:
+      case FUEL_GAUGE:
+      case OIL_GAUGE:
+        temp = (int32_t) ((float) turns * 600.0f / 315.0f);
+        out->steps = *(uint32_t *) &temp;
+        break;
+      default:
+        // Don't know how to handle this device class, so assume steps.
+        out->steps = *(uint32_t *) &turns;
     }
   }
   return 0;
 }
 
 /**
- * When a message is received, dispatch to the appropriate handlers.
- * 
- * @param topic The topic that provided the message.
- * @param payload The message received from the server.
- * @param size The number of bytes in the message.
- */
+   When a message is received, dispatch to the appropriate handlers.
+
+   @param topic The topic that provided the message.
+   @param payload The message received from the server.
+   @param size The number of bytes in the message.
+*/
 void handle_message(const char *topic, uint8_t *payload, int size) {
   received = true; // Tell the device that a message was received in this frame.
 #ifdef DEBUG
@@ -150,7 +150,7 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     case TEST_28BYJ:
     case ALTIMETER:
       // Really bad code right here.
-      if(size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
+      if (size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
         ;
       } else {
         memcpy(&mpacket, payload, sizeof(motor_packet));
@@ -164,7 +164,7 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     case FUEL_GAUGE:
     case OIL_GAUGE:
       // Really bad code right here.
-      if(size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
+      if (size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
         ;
       } else {
         memcpy(&mpacket, payload, sizeof(motor_packet));
@@ -317,13 +317,13 @@ void setup_pins() {
 }
 
 /**
- * Find the device class. Can be overridden by passing an argument.
- * 
- * @param set_class The class to set. If it is -1, then the device figures out the class based on its pins.
- * @return The device class.
- */
+   Find the device class. Can be overridden by passing an argument.
+
+   @param set_class The class to set. If it is -1, then the device figures out the class based on its pins.
+   @return The device class.
+*/
 uint8_t get_class(int set_class = -1) {
-  if(set_class == -1) {
+  if (set_class == -1) {
     uint8_t devcl = 0; // Initialize
     // Read a bit and shift.
     devcl |= digitalRead(DEVCL_4);
@@ -381,6 +381,16 @@ void setup_wdt() {
   *tmr2_wdt_config0 &= 0x7fffffff;
 }
 
+// Get the device info.
+device_info_t get_device_info(void) {
+  device_info_t out;
+
+  out.devclass = (device_class_t)get_class(); // Get the device class, or what devices this controls.
+  WiFi.macAddress((uint8_t *) & (out.devid)); // Set the device id. Use the mac address, since it is unique.
+
+  return out;
+}
+
 // Main setup function.
 void setup() {
 
@@ -390,8 +400,7 @@ void setup() {
 
   setup_pins(); // Setup the IO pins to their defaults.
 
-  info.devclass = (device_class_t)get_class(); // Get the device class, or what devices this controls.
-  WiFi.macAddress((uint8_t *) &(info.devid)); // Set the device id. Use the mac address, since it is unique.
+  info = get_device_info();
 
   sprintf(devid, "dev%ld", info.devid); // Set the device name.
 
@@ -449,7 +458,7 @@ void loop() {
   }
 
   // Do this if there is an input device attached.
-  switch(info.devclass) {
+  switch (info.devclass) {
     case RADIO: // do this if there is a radio attached.
       diff += radio_interface_loop(mqtt_client);
       break;

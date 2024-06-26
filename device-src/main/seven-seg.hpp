@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+// Holds the bit patterns representing digits.
 uint8_t digits[] = {
   0b00000010, // 0
   0b10011110, // 1
@@ -22,6 +23,7 @@ uint8_t digits[] = {
   0b01110000  // F
 };
 
+// Holds the flags for each position in the display.
 uint8_t position[] = {
   0x08, // MSD
   0x04,

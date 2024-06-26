@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <esp32-hal-gpio.h>
 
+// Send data to the shift register.
 void shift_out(const uint8_t *data, size_t bytes) {
   // Set multiplexed pin to be output.
   pinMode(DATA_IO, OUTPUT_OPEN_DRAIN);
@@ -43,6 +44,7 @@ void shift_out(const uint8_t *data, size_t bytes) {
   digitalWrite(STCP_1, LOW);
 }
 
+// Send a single byte to the shift register with out clearing the contents.
 void shift_out_noclear(uint8_t data) {
   // Set multiplexed pin to be output.
   pinMode(DATA_IO, OUTPUT_OPEN_DRAIN);
@@ -54,6 +56,7 @@ void shift_out_noclear(uint8_t data) {
   }
 }
 
+// Read data from the shift register.
 void shift_in(uint8_t *data, size_t bytes) {
   // Set the multiplexed pin to be input.
   pinMode(DATA_IO, INPUT);
@@ -87,7 +90,8 @@ void shift_in(uint8_t *data, size_t bytes) {
     data[i] = read_val;
   }
 }
-    
+
+// Read one byte from the shift register without clearing.
 uint8_t shift_in_noclear(void) {
   // Set the multiplexed pin to be input.
   pinMode(DATA_IO, INPUT);

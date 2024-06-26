@@ -42,12 +42,29 @@ typedef enum {
   ENGINE_STARTER = 10,
 } device_class_t;
 
-// Hold the device info.
+/**
+ * @struct device_info_t
+ * Holds the device info.
+ */
 typedef struct {
+  /**
+   * @var devclass
+   * 
+   * Holds the device class.
+   */
   device_class_t devclass;
+
+  /**
+   * @var devid
+   * 
+   * Holds the device id. This is simply the MAC address of the adapter.
+   */
   uint64_t devid;
 } device_info_t;
 
+/**
+ * Get the device info. 
+ */
 extern device_info_t get_device_info(void);
     
 
