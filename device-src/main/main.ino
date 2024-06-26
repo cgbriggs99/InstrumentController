@@ -9,12 +9,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "drivers.hpp"
 #include "device_info.hpp"
 #include "packets.hpp"
 #include "topics.hpp"
 #include <esp32-hal-gpio.h>
-
 
 #define FRAME_TIME 10000
 
@@ -34,6 +34,50 @@ bool received = false;
 
 TaskHandle_t mqtt_task_handle;
 
+int convert_text(motor_packet *out, const uint8_t *input, int size) {
+  if(strncasecmp("turn", (const char *) input, 5) != 0) {
+    return -1;
+  }
+  int i = 5;
+  // Skip spaces
+  while(isblank(input[i])) {
+    i++;
+  }
+
+  if(strncasecmp("motor", (const char *) input + i, (size - i < 5)? size - i: 5) == 0) {
+    i += 5;
+    // Skip spaces
+    while(isblank(input[i])) {
+      i++;
+    }
+    uint8_t motor;
+    sscanf((const char *) input + i, "%hhu", &motor);
+    out->motor = motor;
+    while(!isblank(input[i])) {
+      i++;
+    }
+  } else {
+    out->motor = 0;
+  }
+
+  int32_t turns;
+  sscanf((const char *) input + i, "%d", &turns);
+
+  while(i < size && !isblank(input[i])) {
+    i++;
+  }
+
+  if(strncasecmp("step", (const char *) input + i, (size - i < 4)? size - i: 4) == 0) {
+    while(i < size && !isblank(input[i])) {
+      i++;
+    }
+    out->steps = (uint32_t) turns;
+  } else {
+    out->steps = (uint32_t) ((float) turns * 2048.0f / 360.0f);
+  }
+  return 0;
+}
+
 void handle_message(const char *topic, uint8_t *payload, int size) {
 #ifdef DEBUG
   static const char hex[] = {
@@ -48,7 +92,6 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
   }
   Serial.print('\n');
 #endif
-  
 
   motor_packet mpacket;
   seven_seg_packet spacket;
@@ -56,7 +99,12 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
   switch (info.devclass) {
     case TEST_28BYJ:
     case ALTIMETER:
-      memcpy(&mpacket, payload, sizeof(motor_packet));
+      // Really bad code right here.
+      if(size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
+        ;
+      } else {
+        memcpy(&mpacket, payload, sizeof(motor_packet));
+      }
 
       run_28byj_update(mpacket.steps, mpacket.motor);
       break;
@@ -65,7 +113,12 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     case TACHOMETER:
     case FUEL_GAUGE:
     case OIL_GAUGE:
-      memcpy(&mpacket, payload, sizeof(motor_packet));
+      // Really bad code right here.
+      if(size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
+        ;
+      } else {
+        memcpy(&mpacket, payload, sizeof(motor_packet));
+      }
 
       run_x27_update(mpacket.steps);
       break;
@@ -201,8 +254,9 @@ void setup_pins() {
   pinMode(__MR_2, OUTPUT_OPEN_DRAIN);
 }
 
+// Find the device class.
 uint8_t get_class(void) {
-  uint8_t devcl = 0;
+  uint8_t devcl = 0; // Initialize
   devcl |= digitalRead(DEVCL_4);
   devcl <<= 1;
   devcl |= digitalRead(DEVCL_3);
@@ -215,75 +269,85 @@ uint8_t get_class(void) {
   return devcl;
 }
 
+// Maintains wifi and mqtt connections.
 void mqtt_task(void *ignored) {
-  while (true) {
+  while (true) { // Repeat ad nauseum.
     //mqtt_client.subscribe(info.topic);
 
+    // Try to connect to wifi, if connection is lost.
     while (!WiFi.isConnected()) {
-      Serial.println("WiFi disconnected.");
-      delay(10);
-      setup_wifi();
+      Serial.println("WiFi disconnected."); // debug.
+      delay(10); // Wait between retries.
+      setup_wifi(); // Try to connect again.
     }
 
+    // Try to connect to the mqtt server, if connection is lost.
     if (!mqtt_client.connected()) {
-      Serial.println("MQTT disconnected.");
-      connect_mqtt();
+      Serial.println("MQTT disconnected."); // debug.
+      connect_mqtt(); // Try to connect again.
     }
+    // Handle mqtt upkeep and messages.
     mqtt_client.loop();
 
+    // Wait for 10 ms.
     delay(10);
   }
 }
 
+// Setup the watchdog timer.
 void setup_wdt() {
+  // Turn off the real-time clock and calendar watchdog timer. The one that controls the CPU.
   uint32_t *rtc_wdt_config0 = (uint32_t *) 0x3FF4808C;
   *rtc_wdt_config0 &= 0x7fffffff;
 
+  // Turn off the first user-mode watchdog timer. The one that controls the code.
   uint32_t *tmr1_wdt_config0 = (uint32_t *) 0x3FF5F048;
   *tmr1_wdt_config0 &= 0x7fffffff;
-  
+
+  // Turn off the second user-mode watchdog timer. Controls nothing by default.
   uint32_t *tmr2_wdt_config0 = (uint32_t *) 0x3FF60048;
   *tmr2_wdt_config0 &= 0x7fffffff;
 }
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(9600); // Set up the usb output.
 
-  Serial.println(WiFi.macAddress());
+  Serial.println(WiFi.macAddress()); // Print the mac address.
 
-  setup_pins();
+  setup_pins(); // Setup the IO pins to their defaults.
 
-  info.devclass = (device_class_t)get_class();
-  WiFi.macAddress((uint8_t *) &(info.devid));
+  info.devclass = (device_class_t)get_class(); // Get the device class, or what devices this controls.
+  WiFi.macAddress((uint8_t *) &(info.devid)); // Set the device id. Use the mac address, since it is unique.
 
-  sprintf(devid, "dev%ld", info.devid);
+  sprintf(devid, "dev%ld", info.devid); // Set the device name.
 
-  setup_wifi();
-  setup_mqtt();
-  setCpuFrequencyMhz(240);
+  setup_wifi(); // Setup the wifi connection.
+  setup_mqtt(); // Setup the mqtt connection.
+  setCpuFrequencyMhz(240); // Set the cpu frequency for wifi compatibility.
 
+  // Setup the connected devices.
   switch (info.devclass) {
     case TEST_28BYJ:
     case ALTIMETER:
-      setup_28byj(info, mqtt_client);
+      setup_28byj(info, mqtt_client); // Setup the 28byj devices.
       break;
     case TEST_X27:
     case SPEDOMETER:
     case TACHOMETER:
     case FUEL_GAUGE:
     case OIL_GAUGE:
-      setup_x27(info, mqtt_client);
+      setup_x27(info, mqtt_client); // Setup the x27 devices.
       break;
     case TEST_7S_DISPLAY:
     case RADIO:
-      setup_7seg(info, mqtt_client);
+      setup_7seg(info, mqtt_client); // Setup the 7-segment display devices.
       break;
     default:
       break;
   }
 
-  xTaskCreate(mqtt_task, "mqtt_task", 10000, NULL, 0, &mqtt_task_handle);
+  xTaskCreate(mqtt_task, "mqtt_task", 10000, NULL, 0, &mqtt_task_handle); // Create a repeating task to make sure connection is maintained.
 }
 
 void loop() {
@@ -291,38 +355,38 @@ void loop() {
 
   uint32_t diff = 0;
 
-  // Output classes.
+  // Do this if there is an output device attached.
   switch (info.devclass) {
     case TEST_28BYJ:
     case ALTIMETER:
-      diff = run_28byj_loop();
+      diff = run_28byj_loop(); // do this if the output relies on a 28byj motor.
       break;
     case TEST_X27:
     case SPEDOMETER:
     case TACHOMETER:
     case FUEL_GAUGE:
     case OIL_GAUGE:
-      diff = run_x27_loop();
+      diff = run_x27_loop(); // do this if the output relies on an x27 motor.
       break;
     case TEST_7S_DISPLAY:
     case RADIO:
     case CLOCK:
-      diff = run_7seg_loop();
+      diff = run_7seg_loop(); // Do this if the output is a 7-segment led display.
       break;
   }
 
-  // Input classes.
+  // Do this if there is an input device attached.
   switch (info.devclass) {
-    case RADIO:
+    case RADIO: // do this if there is a radio attached.
       diff += radio_interface_loop(mqtt_client);
       break;
-    case ENGINE_STARTER:
+    case ENGINE_STARTER: // do this if there is an engine starter attached.
       diff += engine_starter_loop(mqtt_client);
       break;
   }
 
-  received = false;
-  if (diff < FRAME_TIME) {
-    delayMicroseconds(FRAME_TIME - diff);
+  received = false; // Reset the received variable.
+  if (diff < FRAME_TIME) { // If there is time left in the frame, wait it out.
+    delayMicroseconds(FRAME_TIME - diff); // Pad out the frame by waiting for the rest of the frame.
   }
 }

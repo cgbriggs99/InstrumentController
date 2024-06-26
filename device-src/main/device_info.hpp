@@ -45,7 +45,6 @@ typedef struct {
   uint64_t devid;
 } device_info_t;
 
-
 extern device_info_t get_device_info(void);
     
 
