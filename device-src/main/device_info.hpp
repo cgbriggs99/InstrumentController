@@ -29,12 +29,15 @@ typedef enum {
   TEST_7S_DISPLAY = 2,
   
   // Device drivers.
+  // Output devices.
   ALTIMETER = 3,
   SPEDOMETER = 4,
   TACHOMETER = 5,
   CLOCK = 6,
   FUEL_GAUGE = 7,
   OIL_GAUGE = 8,
+
+  // Input devices
   RADIO = 9,
   ENGINE_STARTER = 10,
 } device_class_t;

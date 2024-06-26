@@ -18,22 +18,45 @@
 
 #define FRAME_TIME 10000
 
+// Wifi information
 const char *ssid = "GirlsOnly";
 const char *passwd = "CoffeeMakesMePoop";
 const char *server = "192.168.1.153";
 uint16_t port = 1883;
 
+// Holds the human-readable device id.
 char devid[32];
 
+// Keeps the wifi connection alive.
 WiFiClient wifi_client;
 
+// Communicates with the mqtt server.
 PubSubClient mqtt_client(wifi_client);
 
+// Holds the info dictating device operation.
 device_info_t info;
+
+// Indicates whether a packet was received in the current frame.
 bool received = false;
 
+// Handle that keeps the mqtt connection alive.
 TaskHandle_t mqtt_task_handle;
 
+/**
+ * Convert a text packet into a motor packet.
+ * 
+ * The command should start with "turn". After that,
+ * you may specify "motor" followed by a motor number.
+ * If no motor number is specified, motor 0 is used.
+ * Then, specify the number of steps or degrees. You may
+ * specify whether the number is steps or degrees. If no
+ * units are specified, degrees are assumed.
+ * 
+ * @param out The motor packet output.
+ * @param input The input buffer containing the text.
+ * @param size The length of the packet.
+ * @return 0 on success, -1 on failure.
+ */
 int convert_text(motor_packet *out, const uint8_t *input, int size) {
   if(strncasecmp("turn", (const char *) input, 5) != 0) {
     return -1;
@@ -71,20 +94,45 @@ int convert_text(motor_packet *out, const uint8_t *input, int size) {
     while(i < size && !isblank(input[i])) {
       i++;
     }
-    out->steps = (uint32_t) turns;
+    out->steps = *(uint32_t *) &turns;
   } else {
-    out->steps = (uint32_t) ((float) turns * 2048.0f / 360.0f);
+    int32_t temp;
+    switch(info.devclass) {
+    case TEST_28BYJ:
+    case ALTIMETER:
+      temp = (int32_t) ((float) turns * 2048.0f / 360.0f);
+      out->steps = *(uint32_t *) &temp;
+      break;
+    case TEST_X27:
+    case SPEDOMETER:
+    case TACHOMETER:
+    case FUEL_GAUGE:
+    case OIL_GAUGE:
+      temp = (int32_t) ((float) turns * 600.0f / 315.0f);
+      out->steps = *(uint32_t *) &temp;
+      break;
+    default:
+      // Don't know how to handle this device class, so assume steps.
+      out->steps = *(uint32_t *) &turns;
+    }
   }
   return 0;
 }
 
+/**
+ * When a message is received, dispatch to the appropriate handlers.
+ * 
+ * @param topic The topic that provided the message.
+ * @param payload The message received from the server.
+ * @param size The number of bytes in the message.
+ */
 void handle_message(const char *topic, uint8_t *payload, int size) {
+  received = true; // Tell the device that a message was received in this frame.
 #ifdef DEBUG
   static const char hex[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
-  received = true;
-  // Debug.
+  // Convert payload to hexadecimal.
   Serial.print("Received: ");
   for (int i = 0; i < size; i++) {
     Serial.print(hex[(payload[i] & 0xf0) >> 4]);
@@ -93,9 +141,11 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
   Serial.print('\n');
 #endif
 
+  // Packets for passing data to subhandlers.
   motor_packet mpacket;
   seven_seg_packet spacket;
 
+  // Dispatch.
   switch (info.devclass) {
     case TEST_28BYJ:
     case ALTIMETER:
@@ -138,8 +188,10 @@ void setup_wifi(void) {
 
   Serial.printf("Settting up Wifi %s %s\n", ssid, passwd);
 
+  // Start the wifi connection.
   wl_status_t stat = WiFi.begin(ssid, passwd);
 
+  // Handle the wifi status.
   switch (stat) {
     case WL_NO_SHIELD:
       Serial.println("No shield.");
@@ -169,6 +221,7 @@ void setup_wifi(void) {
       Serial.println("Unknown status code.");
   }
 
+  // If the connection failed, wait 500 ms and try again.
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);  // Wait between retries.
   }
@@ -176,16 +229,18 @@ void setup_wifi(void) {
   Serial.println(WiFi.localIP());
 }
 
+// Set up the mqtt connection.
 void connect_mqtt(void) {
-  // Set the device ID.
-  //sprintf(message_buffer, "Device %d", dev_id);
-  //uint32_t payload = ERROR | ((uint32_t) dev_id << 8) | ((uint32_t) dev_class << 16);
   Serial.println("Connecting to MQTT server.");
+  // Repeat until connected.
   while (!mqtt_client.connected()) {
+    // Try to connect.
     mqtt_client.connect(devid, NULL, NULL, will_topic, 0, true, "I'm dead.");
 
+    // Get the connection status.
     int state = mqtt_client.state();
 
+    // Handle the connection status.
     switch (state) {
       case -4:
         Serial.println("Timeout.");
@@ -221,21 +276,28 @@ void connect_mqtt(void) {
         Serial.println("Unknown status code.");
         break;
     }
+    // Wait 500 ms to try again or stabilize.
     delay(500);
   }
 
+  // Set the callback for handling messages.
   mqtt_client.setCallback(handle_message);
 }
 
 // Set up the MQTT client.
 void setup_mqtt(void) {
+  // Set the server information.
   mqtt_client.setServer(server, port);
+  // Set the callback for handling messages.
   mqtt_client.setCallback(handle_message);
+  // Set how often the connection checks the connection. 15 s.
   mqtt_client.setKeepAlive(15);
 
+  // Set up the connection.
   connect_mqtt();
 }
 
+// Set the pin modes.
 void setup_pins() {
   pinMode(DEVCL_0, INPUT);
   pinMode(DEVCL_1, INPUT);
@@ -254,19 +316,29 @@ void setup_pins() {
   pinMode(__MR_2, OUTPUT_OPEN_DRAIN);
 }
 
-// Find the device class.
-uint8_t get_class(void) {
-  uint8_t devcl = 0; // Initialize
-  devcl |= digitalRead(DEVCL_4);
-  devcl <<= 1;
-  devcl |= digitalRead(DEVCL_3);
-  devcl <<= 1;
-  devcl |= digitalRead(DEVCL_2);
-  devcl <<= 1;
-  devcl |= digitalRead(DEVCL_1);
-  devcl <<= 1;
-  devcl |= digitalRead(DEVCL_0);
-  return devcl;
+/**
+ * Find the device class. Can be overridden by passing an argument.
+ * 
+ * @param set_class The class to set. If it is -1, then the device figures out the class based on its pins.
+ * @return The device class.
+ */
+uint8_t get_class(int set_class = -1) {
+  if(set_class == -1) {
+    uint8_t devcl = 0; // Initialize
+    // Read a bit and shift.
+    devcl |= digitalRead(DEVCL_4);
+    devcl <<= 1;
+    devcl |= digitalRead(DEVCL_3);
+    devcl <<= 1;
+    devcl |= digitalRead(DEVCL_2);
+    devcl <<= 1;
+    devcl |= digitalRead(DEVCL_1);
+    devcl <<= 1;
+    devcl |= digitalRead(DEVCL_0);
+    return devcl;
+  } else {
+    return (uint8_t) set_class;
+  }
 }
 
 // Maintains wifi and mqtt connections.
@@ -309,6 +381,7 @@ void setup_wdt() {
   *tmr2_wdt_config0 &= 0x7fffffff;
 }
 
+// Main setup function.
 void setup() {
 
   Serial.begin(9600); // Set up the usb output.
@@ -350,9 +423,9 @@ void setup() {
   xTaskCreate(mqtt_task, "mqtt_task", 10000, NULL, 0, &mqtt_task_handle); // Create a repeating task to make sure connection is maintained.
 }
 
+// Main loop.
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  // Time remaining in the frame.
   uint32_t diff = 0;
 
   // Do this if there is an output device attached.
@@ -376,7 +449,7 @@ void loop() {
   }
 
   // Do this if there is an input device attached.
-  switch (info.devclass) {
+  switch(info.devclass) {
     case RADIO: // do this if there is a radio attached.
       diff += radio_interface_loop(mqtt_client);
       break;
