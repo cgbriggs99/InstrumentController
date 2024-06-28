@@ -44,7 +44,11 @@ void setup_28byj(device_info_t info, PubSubClient &client) {
 // Update the device.
 void run_28byj_update(uint32_t steps, uint8_t motor) {
   // Update the goals so that it starts spinning in the correct direction.
-  curr_goals[0] = steps;
+  curr_goals[motor] = steps;
+};
+
+uint32_t get_28byj_goal(uint8_t motor) {
+  return curr_goals[motor];
 };
 
 // Move the motor.

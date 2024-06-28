@@ -28,6 +28,13 @@ extern uint32_t run_x27_loop(void);
 extern void run_x27_update(uint32_t steps);
 
 /**
+ * Get the current goal for the x27 motor.
+ * 
+ * @return The current goal for the motor.
+ */
+extern uint32_t get_x27_goal(void);
+
+/**
  * Set up the device to host a 28byj motor.
  * 
  * @param info The device info.
@@ -49,6 +56,14 @@ extern uint32_t run_28byj_loop(void);
  * @param motor Which motor to update.
  */
 extern void run_28byj_update(uint32_t steps, uint8_t motor);
+
+/**
+ * Get the current goal for the specified 28byj motor.
+ * 
+ * @param motor Which motor to query.
+ * @return The goal for the specified motor.
+ */
+extern uint32_t get_28byj_goal(uint8_t motor);
 
 /**
  * Set up the device to host a seven segment display.

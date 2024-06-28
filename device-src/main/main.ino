@@ -101,7 +101,7 @@ int convert_text(motor_packet *out, const uint8_t *input, int size) {
       case TEST_28BYJ:
       case ALTIMETER:
         temp = (int32_t) ((float) turns * 2048.0f / 360.0f);
-        out->steps = *(uint32_t *) &temp;
+        out->steps = *(uint32_t *) &temp + get_28byj_goal(out->motor);
         break;
       case TEST_X27:
       case SPEDOMETER:
@@ -109,7 +109,7 @@ int convert_text(motor_packet *out, const uint8_t *input, int size) {
       case FUEL_GAUGE:
       case OIL_GAUGE:
         temp = (int32_t) ((float) turns * 600.0f / 315.0f);
-        out->steps = *(uint32_t *) &temp;
+        out->steps = *(uint32_t *) &temp + get_x27_goal();
         break;
       default:
         // Don't know how to handle this device class, so assume steps.

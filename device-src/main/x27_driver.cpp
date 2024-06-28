@@ -87,3 +87,7 @@ uint32_t run_x27_loop(void) {
 void run_x27_update(uint32_t steps) {
   curr_goal = steps;
 }
+
+uint32_t get_x27_goal(void) {
+  return curr_goal;
+}
