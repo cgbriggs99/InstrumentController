@@ -16,13 +16,9 @@
 #include "topics.hpp"
 #include <esp32-hal-gpio.h>
 
-#define FRAME_TIME 10000
+#include "wifi_secrets.hpp"
 
-// Wifi information
-const char *ssid = "GirlsOnly";
-const char *passwd = "CoffeeMakesMePoop";
-const char *server = "192.168.1.153";
-uint16_t port = 1883;
+#define FRAME_TIME 10000
 
 // Holds the human-readable device id.
 char devid[32];

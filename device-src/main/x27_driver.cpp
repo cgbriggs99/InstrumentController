@@ -6,8 +6,8 @@
 #include "shift.hpp"
 
 // Where the motor is and needs to be.
-static uint16_t last_goal = 0,
-                curr_goal = 0;
+static uint16_t last_goal = 0x7fff,
+                curr_goal = 0x7fff;
 // Whether or not the device is calibrated.
 static uint8_t is_calibrated = 0;
 
