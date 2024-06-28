@@ -58,4 +58,4 @@ build-docs/
 */build/
 
 # Wifi secrets
-device-src/main/wifi_secrets.hpp
+./device-src/main/wifi_secrets.hpp
