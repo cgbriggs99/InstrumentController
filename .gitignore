@@ -56,3 +56,6 @@ dkms.conf
 build/
 build-docs/
 */build/
+
+# Wifi secrets
+device-src/main/wifi-secrets.hpp
