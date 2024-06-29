@@ -21,6 +21,11 @@
 #define __MR_1 18
 #define __MR_2 2
 
+#define MOTOR1
+#define MOTOR2
+#define MOTOR3
+#define MOTOR4
+
 
 typedef enum {
   // Test drivers.

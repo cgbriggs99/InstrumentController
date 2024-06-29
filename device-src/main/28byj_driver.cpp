@@ -86,8 +86,10 @@ uint32_t run_28byj_loop(void) {
     // Take the patterns for the current position and package them up.
     uint8_t data = pattern[last_goals[0] % 8] | (pattern[last_goals[1] % 8] << 4);
 
-    // Send the patterns to the shift register.
-    shift_out(&data, 1);
+    digitalWrite(MOTOR1, data & 1);
+    digitalWrite(MOTOR2, data & 2);
+    digitalWrite(MOTOR3, data & 4);
+    digitalWrite(MOTOR4, data & 8);
 
     // Wait for the coils to charge and the motor to travel.
     delayMicroseconds(MOTOR_WAIT);
