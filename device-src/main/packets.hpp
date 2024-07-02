@@ -36,14 +36,14 @@ typedef struct {
    * 
    * The number of steps to set as the goal.
    */
-  uint32_t steps;
+  int32_t steps;
 
   /**
    * @var motor
    * 
    * Which motor to update.
    */
-  uint8_t motor;
+  uint32_t motor;
 } motor_packet;
 
 /**
@@ -64,7 +64,7 @@ typedef struct {
    * 
    * Which display to update.
    */
-  uint8_t display;
+  uint32_t display;
 } seven_seg_packet;
 
 /**
@@ -78,7 +78,7 @@ typedef struct {
    * 
    * Bits representing the states of the buttons.
    */
-  uint8_t buttons;
+  uint16_t buttons;
 
   /**
    * @var encoder_positions

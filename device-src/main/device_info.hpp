@@ -21,10 +21,14 @@
 #define __MR_1 18
 #define __MR_2 2
 
-#define MOTOR1
-#define MOTOR2
-#define MOTOR3
-#define MOTOR4
+#define MOTOR1 23
+#define MOTOR2 22
+#define MOTOR3 21
+#define MOTOR4 19
+#define MOTOR5 18
+#define MOTOR6 17
+#define MOTOR7 16
+#define MOTOR8 4
 
 
 typedef enum {

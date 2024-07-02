@@ -3,7 +3,7 @@
 
    This is the main file for the PilotWave project.
 */
-
+#define DEBUG
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include <stdint.h>
@@ -54,29 +54,45 @@ TaskHandle_t mqtt_task_handle;
    @return 0 on success, -1 on failure.
 */
 int convert_text(motor_packet *out, const uint8_t *input, int size) {
-  if (strncasecmp("turn", (const char *) input, 5) != 0) {
+  Serial.println("Converting text.");
+  if (strncasecmp("turn", (const char *) input, 4) != 0) {
     return -1;
   }
-  int i = 5;
+  int i = 0;
   // Skip spaces
-  while (isblank(input[i])) {
+  while (i < size && !isblank(input[i])) {
+    i++;
+  }
+  while (i < size && isblank(input[i])) {
     i++;
   }
 
-  if (strncasecmp("motor", (const char *) input + i, (size - i < 5) ? size - i : 5) == 0) {
-    i += 5;
-    // Skip spaces
-    while (isblank(input[i])) {
+  if (i >= size) {
+    return -2;
+  }
+
+  if (size - i >= 5 && strncasecmp("motor", (const char *) input + i, 5) == 0) {
+    while (i < size && !isblank(input[i])) {
+      i++;
+    }
+    while (i < size && isblank(input[i])) {
       i++;
     }
     uint8_t motor;
     sscanf((const char *) input + i, "%hhu", &motor);
     out->motor = motor;
-    while (!isblank(input[i])) {
+    while (i < size && !isblank(input[i])) {
+      i++;
+    }
+    while (i < size && isblank(input[i])) {
       i++;
     }
   } else {
     out->motor = 0;
+  }
+
+  if (i >= size) {
+    return -3;
   }
 
   int32_t turns;
@@ -85,33 +101,48 @@ int convert_text(motor_packet *out, const uint8_t *input, int size) {
   while (i < size && !isblank(input[i])) {
     i++;
   }
+  while (i < size && isblank(input[i])) {
+    i++;
+  }
 
-  if (strncasecmp("step", (const char *) input + i, (size - i < 4) ? size - i : 4) == 0) {
-    while (i < size && !isblank(input[i])) {
-      i++;
-    }
-    out->steps = *(uint32_t *) &turns;
-  } else {
-    int32_t temp;
+  if (size - i >= 4 && strncasecmp("step", (const char *) input + i, 4) == 0) {
     switch (info.devclass) {
       case TEST_28BYJ:
       case ALTIMETER:
-        temp = (int32_t) ((float) turns * 2048.0f / 360.0f);
-        out->steps = *(uint32_t *) &temp + get_28byj_goal(out->motor);
+        out->steps = turns + get_28byj_goal(out->motor);
         break;
       case TEST_X27:
       case SPEDOMETER:
       case TACHOMETER:
       case FUEL_GAUGE:
       case OIL_GAUGE:
-        temp = (int32_t) ((float) turns * 600.0f / 315.0f);
-        out->steps = *(uint32_t *) &temp + get_x27_goal();
+        out->steps = turns + get_x27_goal();
         break;
       default:
         // Don't know how to handle this device class, so assume steps.
-        out->steps = *(uint32_t *) &turns;
+        out->steps = *(int32_t *) &turns;
+    }
+  } else {
+    int32_t temp;
+    switch (info.devclass) {
+      case TEST_28BYJ:
+      case ALTIMETER:
+        out->steps = (int32_t) ((float) turns * 2048.0f / 360.0f) + get_28byj_goal(out->motor);
+        break;
+      case TEST_X27:
+      case SPEDOMETER:
+      case TACHOMETER:
+      case FUEL_GAUGE:
+      case OIL_GAUGE:
+        out->steps = (int32_t) ((float) turns * 600.0f / 315.0f) + get_x27_goal();
+        break;
+      default:
+        // Don't know how to handle this device class, so assume steps.
+        out->steps = *(int32_t *) &turns;
     }
   }
+
+  Serial.printf("Turning motor %d by %d steps to %d.\n", out->motor, out->steps - get_28byj_goal(out->motor), out->steps);
   return 0;
 }
 
@@ -129,7 +160,7 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
   };
   // Convert payload to hexadecimal.
-  Serial.print("Received: ");
+  Serial.printf("Received %d bytes: ", size);
   for (int i = 0; i < size; i++) {
     Serial.print(hex[(payload[i] & 0xf0) >> 4]);
     Serial.print(hex[payload[i] & 0x0f]);
@@ -146,8 +177,15 @@ void handle_message(const char *topic, uint8_t *payload, int size) {
     case TEST_28BYJ:
     case ALTIMETER:
       // Really bad code right here.
-      if (size > sizeof(motor_packet) && !convert_text(&mpacket, payload, size)) {
-        ;
+      if (size != sizeof(motor_packet) || (size > 5 && payload[5] > 1)) {
+        uint8_t *buffer = (uint8_t *) malloc((size + 1) * sizeof(uint8_t));
+        memset(buffer, 0, (size + 1) * sizeof(uint8_t));
+        memcpy(buffer, payload, size * sizeof(uint8_t));
+        int res = convert_text(&mpacket, buffer, size);
+        free(buffer);
+        if (res != 0) {
+          memcpy(&mpacket, payload, sizeof(motor_packet));
+        }
       } else {
         memcpy(&mpacket, payload, sizeof(motor_packet));
       }
@@ -301,15 +339,14 @@ void setup_pins() {
   pinMode(DEVCL_3, INPUT);
   pinMode(DEVCL_4, INPUT);
 
-  pinMode(DATA_IO, INPUT);
-  pinMode(SHCP_1, OUTPUT_OPEN_DRAIN);
-  pinMode(SHCP_2, OUTPUT_OPEN_DRAIN);
-  pinMode(STCP_1, OUTPUT_OPEN_DRAIN);
-  pinMode(STCP_2, OUTPUT_OPEN_DRAIN);
-  pinMode(OE_1, OUTPUT_OPEN_DRAIN);
-  pinMode(PL_2, OUTPUT_OPEN_DRAIN);
-  pinMode(__MR_1, OUTPUT_OPEN_DRAIN);
-  pinMode(__MR_2, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR1, OUTPUT);
+  pinMode(MOTOR2, OUTPUT);
+  pinMode(MOTOR3, OUTPUT);
+  pinMode(MOTOR4, OUTPUT);
+  pinMode(MOTOR5, OUTPUT);
+  pinMode(MOTOR6, OUTPUT);
+  pinMode(MOTOR7, OUTPUT);
+  pinMode(MOTOR8, OUTPUT);
 }
 
 /**
@@ -381,7 +418,7 @@ void setup_wdt() {
 device_info_t get_device_info(void) {
   device_info_t out;
 
-  out.devclass = (device_class_t)get_class(); // Get the device class, or what devices this controls.
+  out.devclass = (device_class_t)get_class(TEST_28BYJ); // Get the device class, or what devices this controls.
   WiFi.macAddress((uint8_t *) & (out.devid)); // Set the device id. Use the mac address, since it is unique.
 
   return out;

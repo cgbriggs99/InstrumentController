@@ -7,8 +7,8 @@
 #include <stdint.h>
 
 // Dictate where the motors should turn. Initialize to somewhere in the middle.
-static uint32_t last_goals[] = {0x7fffffff, 0x7ffffff};
-static uint32_t curr_goals[] = {0x7fffffff, 0x7ffffff};
+static int32_t last_goals[] = {0x0, 0x0};
+static int32_t curr_goals[] = {0x0, 0x0};
 // Whether or not the device is calibrated.
 static uint8_t is_calibrated = 0;
 
@@ -42,13 +42,13 @@ void setup_28byj(device_info_t info, PubSubClient &client) {
 }
 
 // Update the device.
-void run_28byj_update(uint32_t steps, uint8_t motor) {
+void run_28byj_update(int32_t steps, uint8_t motor) {
   // Update the goals so that it starts spinning in the correct direction.
-  curr_goals[motor] = steps;
+  curr_goals[motor % 2] = steps;
 };
 
-uint32_t get_28byj_goal(uint8_t motor) {
-  return curr_goals[motor];
+int32_t get_28byj_goal(uint8_t motor) {
+  return curr_goals[motor % 2];
 };
 
 // Move the motor.
@@ -85,11 +85,15 @@ uint32_t run_28byj_loop(void) {
 
     // Take the patterns for the current position and package them up.
     uint8_t data = pattern[last_goals[0] % 8] | (pattern[last_goals[1] % 8] << 4);
-
-    digitalWrite(MOTOR1, data & 1);
-    digitalWrite(MOTOR2, data & 2);
-    digitalWrite(MOTOR3, data & 4);
-    digitalWrite(MOTOR4, data & 8);
+    //Serial.printf("Shifting %d to %d and %d to %d with pattern %x.\n", last_goals[0], curr_goals[0], last_goals[1], curr_goals[1], data);
+    digitalWrite(MOTOR1, ((data & 0x01) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR2, ((data & 0x02) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR3, ((data & 0x04) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR4, ((data & 0x08) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR5, ((data & 0x10) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR6, ((data & 0x20) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR7, ((data & 0x40) != 0)? HIGH: LOW);
+    digitalWrite(MOTOR8, ((data & 0x80) != 0)? HIGH: LOW);
 
     // Wait for the coils to charge and the motor to travel.
     delayMicroseconds(MOTOR_WAIT);

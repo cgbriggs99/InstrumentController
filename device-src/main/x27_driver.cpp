@@ -6,8 +6,8 @@
 #include "shift.hpp"
 
 // Where the motor is and needs to be.
-static uint16_t last_goal = 0x7fff,
-                curr_goal = 0x7fff;
+static int32_t last_goal = 0,
+                curr_goal = 0;
 // Whether or not the device is calibrated.
 static uint8_t is_calibrated = 0;
 
@@ -57,7 +57,7 @@ void setup_x27(device_info_t info, PubSubClient &client) {
 // Move the motor.
 uint32_t run_x27_loop(void) {
   // Calculate the number of ticks needed.
-  uint16_t ret = abs(last_goal - curr_goal);
+  uint32_t ret = abs(last_goal - curr_goal);
   if (ret > STEPS_PER_FRAME) {
     ret = STEPS_PER_FRAME;
   }
@@ -71,23 +71,25 @@ uint32_t run_x27_loop(void) {
       last_goal--;
     }
 
-    // Send the new position to the shift register.
-    shift_out(pattern + last_goal % 6, 1);
+    uint8_t data = pattern[last_goal % 6];
+    //Serial.printf("Shifting. Has %d ticks left.\n", abs(curr_goal - last_goal));
+    digitalWrite(MOTOR1, data & 1);
+    digitalWrite(MOTOR2, data & 2);
+    digitalWrite(MOTOR3, data & 4);
+    digitalWrite(MOTOR4, data & 8);
 
     // Wait for the motor to rotate.
     delayMicroseconds(MOTOR_WAIT);
-    // Activate.
-    digitalWrite(OE_1, HIGH);
   }
   // Return the number of ticks.
   return ret * MOTOR_WAIT;
 }
 
 // Update the motor's goal.
-void run_x27_update(uint32_t steps) {
+void run_x27_update(int32_t steps) {
   curr_goal = steps;
 }
 
-uint32_t get_x27_goal(void) {
+int32_t get_x27_goal(void) {
   return curr_goal;
 }
