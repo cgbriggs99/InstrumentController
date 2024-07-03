@@ -27,6 +27,10 @@ static const uint8_t pattern[] = {
 
 // Set up the device.
 void setup_x27(device_info_t info, PubSubClient &client) {
+  pinMode(MOTOR1, OUTPUT);
+  pinMode(MOTOR2, OUTPUT);
+  pinMode(MOTOR3, OUTPUT);
+  pinMode(MOTOR4, OUTPUT);
   Serial.printf("Setting up x27 device.\n");
   // Subscribe to the appropriate topic.
   switch (info.devclass) {

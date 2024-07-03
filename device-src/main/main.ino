@@ -338,15 +338,6 @@ void setup_pins() {
   pinMode(DEVCL_2, INPUT);
   pinMode(DEVCL_3, INPUT);
   pinMode(DEVCL_4, INPUT);
-
-  pinMode(MOTOR1, OUTPUT);
-  pinMode(MOTOR2, OUTPUT);
-  pinMode(MOTOR3, OUTPUT);
-  pinMode(MOTOR4, OUTPUT);
-  pinMode(MOTOR5, OUTPUT);
-  pinMode(MOTOR6, OUTPUT);
-  pinMode(MOTOR7, OUTPUT);
-  pinMode(MOTOR8, OUTPUT);
 }
 
 /**

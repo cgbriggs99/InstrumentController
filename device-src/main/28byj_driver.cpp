@@ -23,6 +23,14 @@ static const uint8_t pattern[] = {
 
 // Set up the device specific connection info.
 void setup_28byj(device_info_t info, PubSubClient &client) {
+  pinMode(MOTOR1, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR2, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR3, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR4, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR5, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR6, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR7, OUTPUT_OPEN_DRAIN);
+  pinMode(MOTOR8, OUTPUT_OPEN_DRAIN);
 
   // Subscribe to the appropriate topic.
   switch (info.devclass) {
